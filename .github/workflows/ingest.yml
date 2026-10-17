@@ -1,0 +1,41 @@
+name: ingest
+
+on:
+  schedule:
+    - cron: "7 * * * *" # hourly, at :07
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ingest
+  cancel-in-progress: false
+
+jobs:
+  ingest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+    steps:
+      - name: Skip until the database secret exists
+        id: gate
+        run: |
+          if [ -z "$SUPABASE_DB_URL" ]; then
+            echo "::notice::SUPABASE_DB_URL is not set yet; skipping ingest."
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          fi
+      - uses: actions/checkout@v4
+        if: steps.gate.outputs.ready == 'true'
+      - uses: actions/setup-python@v5
+        if: steps.gate.outputs.ready == 'true'
+        with:
+          python-version: "3.12"
+          cache: pip
+      - if: steps.gate.outputs.ready == 'true'
+        run: pip install -e .
+      - if: steps.gate.outputs.ready == 'true'
+        run: python -m pipeline.ingest

@@ -1,0 +1,163 @@
+# Outlet registry. No political labels here: positions are measured automatically
+# from article text (see METHOD.md). "feeds" are optional hints; pipeline/discover.py
+# also tries the homepage's <link rel="alternate"> and common CMS paths, then writes
+# the working feeds to pipeline/data/feeds.lock.json.
+#
+# group: national | economic | wire | broadcast | internet | weekly | regional | specialist
+
+outlets:
+  # National dailies
+  - {id: chosun, name: 조선일보, home: https://www.chosun.com, group: national,
+     feeds: ["https://www.chosun.com/arc/outboundfeeds/rss/?outputType=xml",
+             "https://www.chosun.com/arc/outboundfeeds/rss/category/politics/?outputType=xml"]}
+  - {id: joongang, name: 중앙일보, home: https://www.joongang.co.kr, group: national}
+  - {id: donga, name: 동아일보, home: https://www.donga.com, group: national,
+     feeds: ["https://rss.donga.com/total.xml", "https://rss.donga.com/politics.xml"]}
+  - {id: hani, name: 한겨레, home: https://www.hani.co.kr, group: national,
+     feeds: ["https://www.hani.co.kr/rss/", "https://www.hani.co.kr/rss/politics/"]}
+  - {id: khan, name: 경향신문, home: https://www.khan.co.kr, group: national,
+     feeds: ["https://www.khan.co.kr/rss/rssdata/total_news.xml",
+             "https://www.khan.co.kr/rss/rssdata/politic_news.xml"]}
+  - {id: hankookilbo, name: 한국일보, home: https://www.hankookilbo.com, group: national}
+  - {id: kmib, name: 국민일보, home: https://www.kmib.co.kr, group: national,
+     feeds: ["https://www.kmib.co.kr/rss/data/kmibRssAll.xml",
+             "https://www.kmib.co.kr/rss/data/kmibPolRss.xml"]}
+  - {id: segye, name: 세계일보, home: https://www.segye.com, group: national,
+     feeds: ["https://www.segye.com/Articles/RSSList/segye_recent.xml",
+             "https://www.segye.com/Articles/RSSList/segye_politic.xml"]}
+  - {id: seoul, name: 서울신문, home: https://www.seoul.co.kr, group: national,
+     feeds: ["https://www.seoul.co.kr/xml/rss/rss_top_news.xml",
+             "https://www.seoul.co.kr/xml/rss/rss_politics.xml"]}
+  - {id: munhwa, name: 문화일보, home: https://www.munhwa.com, group: national}
+  - {id: naeil, name: 내일신문, home: https://www.naeil.com, group: national}
+  - {id: asiatoday, name: 아시아투데이, home: https://www.asiatoday.co.kr, group: national}
+
+  # Economic dailies
+  - {id: mk, name: 매일경제, home: https://www.mk.co.kr, group: economic,
+     feeds: ["https://www.mk.co.kr/rss/30000001/", "https://www.mk.co.kr/rss/30200030/"]}
+  - {id: hankyung, name: 한국경제, home: https://www.hankyung.com, group: economic,
+     feeds: ["https://www.hankyung.com/feed/all-news", "https://www.hankyung.com/feed/politics"]}
+  - {id: sedaily, name: 서울경제, home: https://www.sedaily.com, group: economic}
+  - {id: mt, name: 머니투데이, home: https://www.mt.co.kr, group: economic,
+     feeds: ["https://rss.mt.co.kr/mt_news.xml", "https://rss.mt.co.kr/mt_politics.xml"]}
+  - {id: edaily, name: 이데일리, home: https://www.edaily.co.kr, group: economic}
+  - {id: fnnews, name: 파이낸셜뉴스, home: https://www.fnnews.com, group: economic}
+  - {id: heraldcorp, name: 헤럴드경제, home: https://biz.heraldcorp.com, group: economic}
+  - {id: asiae, name: 아시아경제, home: https://www.asiae.co.kr, group: economic}
+  - {id: ajunews, name: 아주경제, home: https://www.ajunews.com, group: economic}
+  - {id: etoday, name: 이투데이, home: https://www.etoday.co.kr, group: economic}
+  - {id: newspim, name: 뉴스핌, home: https://www.newspim.com, group: economic}
+  - {id: etnews, name: 전자신문, home: https://www.etnews.com, group: economic}
+  - {id: dt, name: 디지털타임스, home: https://www.dt.co.kr, group: economic}
+  - {id: chosunbiz, name: 조선비즈, home: https://biz.chosun.com, group: economic}
+  - {id: newsway, name: 뉴스웨이, home: https://www.newsway.co.kr, group: economic}
+  - {id: businesspost, name: 비즈니스포스트, home: https://www.businesspost.co.kr, group: economic}
+  - {id: ebn, name: EBN, home: https://www.ebn.co.kr, group: economic}
+  - {id: moneys, name: 머니S, home: https://www.moneys.co.kr, group: economic}
+  - {id: newstomato, name: 뉴스토마토, home: https://www.newstomato.com, group: economic}
+  - {id: inews24, name: 아이뉴스24, home: https://www.inews24.com, group: economic}
+  - {id: cnbnews, name: CNB뉴스, home: https://www.cnbnews.com, group: economic}
+  - {id: news2day, name: 뉴스투데이, home: https://www.news2day.co.kr, group: economic}
+
+  # Wire services
+  - {id: yna, name: 연합뉴스, home: https://www.yna.co.kr, group: wire,
+     feeds: ["https://www.yna.co.kr/rss/news.xml", "https://www.yna.co.kr/rss/politics.xml"]}
+  - {id: newsis, name: 뉴시스, home: https://www.newsis.com, group: wire,
+     feeds: ["https://www.newsis.com/RSS/sokbo.xml", "https://www.newsis.com/RSS/politics.xml"]}
+  - {id: news1, name: 뉴스1, home: https://www.news1.kr, group: wire}
+
+  # Broadcasters
+  - {id: kbs, name: KBS, home: https://news.kbs.co.kr, group: broadcast}
+  - {id: mbc, name: MBC, home: https://imnews.imbc.com, group: broadcast}
+  - {id: sbs, name: SBS, home: https://news.sbs.co.kr, group: broadcast,
+     feeds: ["https://news.sbs.co.kr/news/newsflashRssFeed.do?plink=RSSREADER",
+             "https://news.sbs.co.kr/news/SectionRssFeed.do?sectionId=01&plink=RSSREADER"]}
+  - {id: jtbc, name: JTBC, home: https://news.jtbc.co.kr, group: broadcast,
+     feeds: ["https://fs.jtbc.co.kr/RSS/newsflash.xml", "https://fs.jtbc.co.kr/RSS/politics.xml"]}
+  - {id: ytn, name: YTN, home: https://www.ytn.co.kr, group: broadcast}
+  - {id: mbn, name: MBN, home: https://www.mbn.co.kr, group: broadcast}
+  - {id: tvchosun, name: TV조선, home: https://news.tvchosun.com, group: broadcast}
+  - {id: channela, name: 채널A, home: https://www.ichannela.com, group: broadcast}
+  - {id: yonhapnewstv, name: 연합뉴스TV, home: https://www.yonhapnewstv.co.kr, group: broadcast,
+     feeds: ["https://www.yonhapnewstv.co.kr/browse/feed/"]}
+  - {id: nocut, name: CBS노컷뉴스, home: https://www.nocutnews.co.kr, group: broadcast}
+  - {id: obs, name: OBS, home: https://www.obsnews.co.kr, group: broadcast}
+
+  # Internet outlets
+  - {id: ohmynews, name: 오마이뉴스, home: https://www.ohmynews.com, group: internet,
+     feeds: ["http://rss.ohmynews.com/rss/ohmynews.xml", "http://rss.ohmynews.com/rss/politics.xml"]}
+  - {id: pressian, name: 프레시안, home: https://www.pressian.com, group: internet}
+  - {id: mediatoday, name: 미디어오늘, home: https://www.mediatoday.co.kr, group: internet}
+  - {id: vop, name: 민중의소리, home: https://www.vop.co.kr, group: internet}
+  - {id: mindlenews, name: 민들레, home: https://www.mindlenews.com, group: internet}
+  - {id: newstapa, name: 뉴스타파, home: https://newstapa.org, group: internet}
+  - {id: mediaus, name: 미디어스, home: https://www.mediaus.co.kr, group: internet}
+  - {id: kukinews, name: 쿠키뉴스, home: https://www.kukinews.com, group: internet}
+  - {id: pennmike, name: 펜앤드마이크, home: https://www.pennmike.com, group: internet}
+  - {id: dailian, name: 데일리안, home: https://www.dailian.co.kr, group: internet}
+  - {id: newdaily, name: 뉴데일리, home: https://www.newdaily.co.kr, group: internet}
+  - {id: skyedaily, name: 스카이데일리, home: https://www.skyedaily.com, group: internet}
+  - {id: mediapen, name: 미디어펜, home: https://www.mediapen.com, group: internet}
+  - {id: thefact, name: 더팩트, home: https://news.tf.co.kr, group: internet}
+  - {id: breaknews, name: 브레이크뉴스, home: https://www.breaknews.com, group: internet}
+  - {id: polinews, name: 폴리뉴스, home: https://www.polinews.co.kr, group: internet}
+  - {id: newstof, name: 뉴스톱, home: https://www.newstof.com, group: internet}
+  - {id: straightnews, name: 스트레이트뉴스, home: https://www.straightnews.co.kr, group: internet}
+  - {id: upinews, name: UPI뉴스, home: https://www.upinews.kr, group: internet}
+  - {id: wikitree, name: 위키트리, home: https://www.wikitree.co.kr, group: internet}
+  - {id: insight, name: 인사이트, home: https://www.insight.co.kr, group: internet}
+  - {id: sisafocus, name: 시사포커스, home: https://www.sisafocus.co.kr, group: internet}
+  - {id: gukjenews, name: 국제뉴스, home: https://www.gukjenews.com, group: internet}
+  - {id: dailynk, name: 데일리NK, home: https://www.dailynk.com, group: internet}
+  - {id: tongilnews, name: 통일뉴스, home: https://www.tongilnews.com, group: internet}
+  - {id: newscham, name: 참세상, home: https://www.newscham.net, group: internet}
+
+  # Weeklies and magazines
+  - {id: sisain, name: 시사IN, home: https://www.sisain.co.kr, group: weekly}
+  - {id: h21, name: 한겨레21, home: https://h21.hani.co.kr, group: weekly}
+  - {id: sisajournal, name: 시사저널, home: https://www.sisajournal.com, group: weekly}
+  - {id: weeklydonga, name: 주간동아, home: https://weekly.donga.com, group: weekly}
+  - {id: monthlychosun, name: 월간조선, home: https://monthly.chosun.com, group: weekly}
+  - {id: ilyo, name: 일요신문, home: https://ilyo.co.kr, group: weekly}
+  - {id: ilyosisa, name: 일요시사, home: https://www.ilyosisa.co.kr, group: weekly}
+  - {id: sisaon, name: 시사오늘, home: https://www.sisaon.co.kr, group: weekly}
+
+  # Specialist
+  - {id: labortoday, name: 매일노동뉴스, home: https://www.labortoday.co.kr, group: specialist}
+  - {id: womennews, name: 여성신문, home: https://www.womennews.co.kr, group: specialist}
+  - {id: nongmin, name: 농민신문, home: https://www.nongmin.com, group: specialist}
+  - {id: kyosu, name: 교수신문, home: https://www.kyosu.net, group: specialist}
+  - {id: lawtimes, name: 법률신문, home: https://www.lawtimes.co.kr, group: specialist}
+  - {id: pdjournal, name: PD저널, home: https://www.pdjournal.com, group: specialist}
+  - {id: journalist, name: 기자협회보, home: https://www.journalist.or.kr, group: specialist}
+
+  # Regional dailies
+  - {id: busan, name: 부산일보, home: https://www.busan.com, group: regional}
+  - {id: kookje, name: 국제신문, home: https://www.kookje.co.kr, group: regional}
+  - {id: imaeil, name: 매일신문, home: https://www.imaeil.com, group: regional}
+  - {id: yeongnam, name: 영남일보, home: https://www.yeongnam.com, group: regional}
+  - {id: kyongbuk, name: 경북일보, home: https://www.kyongbuk.co.kr, group: regional}
+  - {id: kbmaeil, name: 경북매일, home: https://www.kbmaeil.com, group: regional}
+  - {id: knnews, name: 경남신문, home: https://www.knnews.co.kr, group: regional}
+  - {id: idomin, name: 경남도민일보, home: https://www.idomin.com, group: regional}
+  - {id: ksilbo, name: 경상일보, home: https://www.ksilbo.co.kr, group: regional}
+  - {id: iusm, name: 울산매일, home: https://www.iusm.co.kr, group: regional}
+  - {id: kyeongin, name: 경인일보, home: https://www.kyeongin.com, group: regional}
+  - {id: kgnews, name: 경기신문, home: https://www.kgnews.co.kr, group: regional}
+  - {id: kihoilbo, name: 기호일보, home: https://www.kihoilbo.co.kr, group: regional}
+  - {id: joongboo, name: 중부일보, home: https://www.joongboo.com, group: regional}
+  - {id: incheonilbo, name: 인천일보, home: https://www.incheonilbo.com, group: regional}
+  - {id: joongdo, name: 중도일보, home: https://www.joongdo.co.kr, group: regional}
+  - {id: daejonilbo, name: 대전일보, home: https://www.daejonilbo.com, group: regional}
+  - {id: ccdailynews, name: 충청일보, home: https://www.ccdailynews.com, group: regional}
+  - {id: jbnews, name: 중부매일, home: https://www.jbnews.com, group: regional}
+  - {id: kwnews, name: 강원일보, home: https://www.kwnews.co.kr, group: regional}
+  - {id: kado, name: 강원도민일보, home: https://www.kado.net, group: regional}
+  - {id: jjan, name: 전북일보, home: https://www.jjan.kr, group: regional}
+  - {id: domin, name: 전북도민일보, home: https://www.domin.co.kr, group: regional}
+  - {id: kwangju, name: 광주일보, home: https://www.kwangju.co.kr, group: regional}
+  - {id: namdonews, name: 남도일보, home: https://www.namdonews.com, group: regional}
+  - {id: mdilbo, name: 무등일보, home: https://www.mdilbo.com, group: regional}
+  - {id: jejunews, name: 제주일보, home: https://www.jejunews.com, group: regional}
+  - {id: ihalla, name: 한라일보, home: https://www.ihalla.com, group: regional}
+  - {id: jemin, name: 제민일보, home: https://www.jemin.com, group: regional}
