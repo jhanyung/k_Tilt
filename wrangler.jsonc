@@ -1,0 +1,10 @@
+{
+  // Static site served by Cloudflare Workers (static assets only, no Worker script yet).
+  // "name" must match the Worker name shown in the Cloudflare dashboard.
+  "name": "k-tilt",
+  "compatibility_date": "2026-10-01",
+  "assets": {
+    "directory": "./site",
+    "not_found_handling": "404-page"
+  }
+}

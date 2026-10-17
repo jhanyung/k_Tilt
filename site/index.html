@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>기울기 · 같은 뉴스, 다른 시선</title>
+  <meta name="description" content="오늘 가장 많이 보도된 뉴스 10건을 진보·보수 언론이 어떻게 다르게 보도했는지, 누구의 말을 인용했는지 AI가 비교합니다. 뉴스 커뮤니티.">
+  <style>
+    :root { --bg:#fbfaf7; --ink:#1c1b19; --quiet:#6b6760; --line:#e4e0d8; --l:#2f6fd0; --r:#d0442f; }
+    @media (prefers-color-scheme: dark) { :root { --bg:#141412; --ink:#f1efe9; --quiet:#a19c92; --line:#2c2a26; } }
+    * { box-sizing: border-box; }
+    body { margin:0; background:var(--bg); color:var(--ink);
+      font-family: "Pretendard", -apple-system, "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+      line-height:1.6; }
+    main { max-width:560px; margin:0 auto; padding:56px 16px 40px; }
+    .bar { display:flex; height:10px; border-radius:5px; overflow:hidden; margin:0 0 28px; }
+    .bar span:nth-child(1){ flex:4; background:var(--l); }
+    .bar span:nth-child(2){ flex:2; background:var(--line); }
+    .bar span:nth-child(3){ flex:4; background:var(--r); }
+    h1 { font-size:2rem; margin:0 0 8px; letter-spacing:-0.02em; }
+    .lead { font-size:1.125rem; margin:0 0 28px; }
+    ul { padding:0; margin:0 0 32px; list-style:none; border-top:1px solid var(--line); }
+    li { padding:14px 0; border-bottom:1px solid var(--line); }
+    li b { display:block; }
+    li span { color:var(--quiet); font-size:.95rem; }
+    .soon { display:inline-block; padding:6px 12px; border:1px solid var(--line); border-radius:999px; font-size:.9rem; }
+    footer { color:var(--quiet); font-size:.8rem; margin-top:40px; }
+  </style>
+</head>
+<body>
+  <main>
+    <div class="bar" aria-hidden="true"><span></span><span></span><span></span></div>
+    <h1>기울기</h1>
+    <p class="lead">같은 뉴스, 다른 시선. 오늘 가장 많이 보도된 뉴스 10건을 양쪽에서 봅니다.</p>
+    <ul>
+      <li><b>무엇을 다르게 썼나</b><span>진보·보수 언론이 같은 사건에서 강조한 점을 나란히</span></li>
+      <li><b>누구의 말을 옮겼나</b><span>각 진영이 인용한 사람과 횟수</span></li>
+      <li><b>무엇을 빼먹었나</b><span>한쪽만 다루거나 외면한 뉴스</span></li>
+    </ul>
+    <span class="soon">준비 중입니다</span>
+    <footer>기울기는 뉴스 커뮤니티입니다. 요약과 분석은 AI가 작성합니다.</footer>
+  </main>
+</body>
+</html>
