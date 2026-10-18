@@ -1,0 +1,67 @@
+name: edition
+
+# Morning edition cuts at 07:00 KST (22:00 UTC), evening at 18:00 KST (09:00 UTC).
+# GitHub delays or drops scheduled runs under load, so each edition has three triggers;
+# the job is idempotent and later triggers skip an edition that already exists.
+on:
+  schedule:
+    - cron: "11,31,51 22 * * *"
+    - cron: "11,31,51 9 * * *"
+  workflow_dispatch:
+    inputs:
+      slot:
+        description: "am or pm (empty = the most recent cut-off)"
+        type: string
+        default: ""
+      force:
+        description: "Rebuild even if the edition exists"
+        type: boolean
+        default: false
+      dry_run:
+        description: "Rank and print only, do not save"
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+
+concurrency:
+  group: edition
+  cancel-in-progress: false
+
+jobs:
+  edition:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+      FASTEMBED_CACHE_PATH: ${{ github.workspace }}/.fastembed
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -e ".[rank]"
+      - name: Cache the embedding model
+        uses: actions/cache@v4
+        with:
+          path: .fastembed
+          key: fastembed-paraphrase-multilingual-MiniLM-L12-v2
+      - name: Pick the slot
+        id: slot
+        run: |
+          slot="${{ inputs.slot }}"
+          if [ -z "$slot" ]; then
+            h=$(TZ=Asia/Seoul date +%H)
+            if [ "$h" -ge 7 ] && [ "$h" -lt 18 ]; then slot=am; else slot=pm; fi
+          fi
+          echo "slot=$slot" >> "$GITHUB_OUTPUT"
+      - name: Collect the latest headlines first
+        if: ${{ !inputs.dry_run }}
+        run: python -m pipeline.ingest
+        continue-on-error: true
+      - name: Rank stories
+        run: >-
+          python -m pipeline.rank --slot ${{ steps.slot.outputs.slot }}
+          ${{ inputs.force && '--force' || '' }} ${{ inputs.dry_run && '--dry-run' || '' }}

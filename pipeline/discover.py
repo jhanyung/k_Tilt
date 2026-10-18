@@ -266,6 +266,15 @@ def main(argv: list[str] | None = None) -> int:
         }
     for r in failing:
         lock["failing"][r["id"]] = r["tried"]
+    # Shown publicly as 수집거부, so only when robots.txt refuses the homepage itself.
+    homes = {o["id"]: o["home"].rstrip("/") + "/" for o in outlets}
+    refused = set(lock.get("refused", [])) - set(homes)
+    refused |= {
+        oid
+        for oid in lock["failing"]
+        if oid in homes and http.refusal(homes[oid]) == "robots.txt disallows"
+    }
+    lock["refused"] = sorted(refused)
     lock["generated_at"] = datetime.now(UTC).isoformat(timespec="seconds")
     lock["outlets"] = dict(sorted(lock["outlets"].items()))
     lock["failing"] = dict(sorted(lock["failing"].items()))

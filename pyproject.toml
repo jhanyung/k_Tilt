@@ -15,7 +15,9 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = ["ruff>=0.6", "pytest>=8"]
+dev = ["ruff>=0.6", "pytest>=8", "numpy>=1.26", "scikit-learn>=1.4"]
+# Ranking: sentence embeddings (ONNX, no PyTorch) and the Kiwi Korean analyser.
+rank = ["numpy>=1.26", "scikit-learn>=1.4", "fastembed>=0.4", "kiwipiepy>=0.18"]
 
 [tool.setuptools]
 packages = ["pipeline"]

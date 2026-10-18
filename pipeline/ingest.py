@@ -24,6 +24,8 @@ from urllib.parse import parse_qsl, urlencode, urlsplit, urlunsplit
 from pipeline import feeds, http
 
 LOCK = Path(__file__).resolve().parent / "data" / "feeds.lock.json"
+REGISTRY = Path(__file__).resolve().parent / "outlets.yaml"
+KEEP_DAYS = 30
 MAX_AGE_H = 72  # ignore items older than this
 _TRACKING = re.compile(r"^(utm_|fbclid|gclid|ref$|from$|rss|sc_|cmpid)", re.IGNORECASE)
 _BRACKETS = re.compile(r"^\s*(\[[^\]]{1,12}\]|【[^】]{1,12}】|<[^>]{1,12}>)\s*")
@@ -131,6 +133,25 @@ def plan_rows(
     return rows, dup
 
 
+def outlet_rows(lock: dict) -> list[tuple]:
+    """Every registry outlet with its access status, so refusals can be shown (수집거부)."""
+    import yaml
+
+    registry = yaml.safe_load(REGISTRY.read_text(encoding="utf-8"))["outlets"]
+    rows = []
+    for o in registry:
+        oid = o["id"]
+        if oid in lock["outlets"]:
+            access = "relay" if lock["outlets"][oid].get("via") == "relay" else "ok"
+            home = lock["outlets"][oid]["home"]
+        else:
+            # 수집거부 only when discovery found robots.txt refusing the homepage itself.
+            access = "refused" if oid in lock.get("refused", []) else "unavailable"
+            home = o["home"]
+        rows.append((oid, o["name"], o["group"], home, access))
+    return rows
+
+
 def store(results: list[OutletResult], lock: dict, started: datetime) -> dict:
     """A handful of round trips regardless of volume: the database is in Seoul and the
     runner usually is not, so per-row statements would take tens of minutes."""
@@ -139,10 +160,10 @@ def store(results: list[OutletResult], lock: dict, started: datetime) -> dict:
     hashes = [sha1(i.url) for r in results for i in r.items]
     with connect() as conn, conn.cursor() as cur:
         cur.executemany(
-            "insert into outlets (id, name, grp, home) values (%s, %s, %s, %s) "
+            "insert into outlets (id, name, grp, home, access) values (%s, %s, %s, %s, %s) "
             "on conflict (id) do update set name = excluded.name, grp = excluded.grp, "
-            "home = excluded.home, updated_at = now()",
-            [(oid, o["name"], o["group"], o["home"]) for oid, o in lock["outlets"].items()],
+            "home = excluded.home, access = excluded.access, updated_at = now()",
+            outlet_rows(lock),
         )
         cur.execute("select url_hash from articles where url_hash = any(%s)", (hashes,))
         known = {r[0] for r in cur.fetchall()}
@@ -178,8 +199,10 @@ def store(results: list[OutletResult], lock: dict, started: datetime) -> dict:
             "duplicates, errors) values (%s, %s, %s, %s, %s, %s)",
             (started, ok, len(results) - ok, new, dup, json.dumps(errors, ensure_ascii=False)),
         )
+        cur.execute("select prune_articles(%s)", (KEEP_DAYS,))
+        pruned = cur.fetchone()[0]
         conn.commit()
-    return {"new": new, "duplicates": dup}
+    return {"new": new, "duplicates": dup, "pruned": pruned}
 
 
 def summary(results: list[OutletResult], stored: dict | None) -> str:
@@ -191,7 +214,8 @@ def summary(results: list[OutletResult], stored: dict | None) -> str:
     ]
     if stored:
         lines.append(
-            f"new articles stored: {stored['new']}, duplicates skipped: {stored['duplicates']}"
+            f"new articles stored: {stored['new']}, duplicates skipped: "
+            f"{stored['duplicates']}, pruned (>{KEEP_DAYS} days): {stored['pruned']}"
         )
     if empty:
         lines.append("no items: " + ", ".join(r.outlet_id for r in empty))
@@ -201,11 +225,19 @@ def summary(results: list[OutletResult], stored: dict | None) -> str:
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--dry-run", action="store_true")
+    ap.add_argument("--dump", default="", help="write collected items to this JSON file")
     args = ap.parse_args(argv)
 
     started = datetime.now(UTC)
     lock = json.loads(LOCK.read_text(encoding="utf-8"))
     results = collect_all(lock)
+    if args.dump:
+        Path(args.dump).write_text(
+            json.dumps(
+                [i.__dict__ for r in results for i in r.items], ensure_ascii=False, indent=0
+            ),
+            encoding="utf-8",
+        )
     stored = None if args.dry_run else store(results, lock, started)
 
     text = summary(results, stored)

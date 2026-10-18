@@ -1506,5 +1506,13 @@
       "https://www.yeongnam.com/": "only 0 headline links"
     }
   },
-  "generated_at": "2026-10-18T00:49:17+00:00"
+  "generated_at": "2026-10-18T00:49:17+00:00",
+  "refused": [
+    "asiae",
+    "breaknews",
+    "mbc",
+    "naeil",
+    "news2day",
+    "nongmin"
+  ]
 }
