@@ -62,10 +62,14 @@ jobs:
           KEY=$(python -m pipeline.relay key)
           echo "::add-mask::$KEY"
           sleep 5
-          curl -sS -D - -o /dev/null --max-time 40 \
-            -H "x-relay-key: $KEY" -H "x-region: ap-northeast-2" \
-            "https://$REF.supabase.co/functions/v1/relay?url=https://ichannela.com/robots.txt" \
-            | grep -iE "^HTTP/|x-sb-edge-region|x-upstream-status"
+          for u in https://ichannela.com/robots.txt https://www.kwangju.co.kr/robots.txt https://www.yna.co.kr/robots.txt; do
+            echo "--- $u"
+            curl -sS -D - -o body.txt --max-time 40 \
+              -H "x-relay-key: $KEY" -H "x-region: ap-northeast-2" \
+              "https://$REF.supabase.co/functions/v1/relay?url=$u" \
+              | grep -iE "^HTTP/|x-sb-edge-region|x-upstream-status|x-relay-error" || true
+            grep -q "upstream error" body.txt && head -c 400 body.txt && echo || true
+          done
           echo "--- open-proxy check (must be 403):"
           curl -sS -o /dev/null -w "%{http_code}\n" --max-time 20 \
             -H "x-relay-key: $KEY" \

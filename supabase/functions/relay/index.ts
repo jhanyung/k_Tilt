@@ -65,7 +65,8 @@ Deno.serve(async (req) => {
       signal: AbortSignal.timeout(20_000),
     });
   } catch (e) {
-    return new Response(`upstream error: ${(e as Error).name}`, {
+    const err = e as Error;
+    return new Response(`upstream error: ${err.name}: ${String(err.message).slice(0, 300)}`, {
       status: 502,
       headers: { "x-relay-error": "upstream" },
     });
