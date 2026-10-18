@@ -203,7 +203,7 @@
       "home": "https://www.etnews.com",
       "feeds": [
         {
-          "url": "http://rss.etnews.com/02.xml",
+          "url": "http://rss.etnews.com/Section901.xml",
           "kind": "rss"
         }
       ]
@@ -240,8 +240,8 @@
       "home": "https://www.gukjenews.com",
       "feeds": [
         {
-          "url": "https://www.gukjenews.com/sitemap.xml",
-          "kind": "sitemap"
+          "url": "https://www.gukjenews.com/rss/allArticle.xml",
+          "kind": "rss"
         },
         {
           "url": "https://www.gukjenews.com/rss/S1N1.xml",
@@ -484,7 +484,8 @@
           "url": "https://www.joongang.co.kr/sitemap/latest-articles",
           "kind": "sitemap"
         }
-      ]
+      ],
+      "via": "relay"
     },
     "joongboo": {
       "name": "중부일보",
@@ -643,7 +644,8 @@
           "url": "https://www.kookje.co.kr/",
           "kind": "page"
         }
-      ]
+      ],
+      "via": "relay"
     },
     "ksilbo": {
       "name": "경상일보",
@@ -866,7 +868,7 @@
       "home": "https://www.mt.co.kr",
       "feeds": [
         {
-          "url": "https://www.mt.co.kr/sitemap/news/daily.xml",
+          "url": "https://www.mt.co.kr/sitemap/latest.xml",
           "kind": "sitemap"
         }
       ]
@@ -1006,7 +1008,7 @@
       "home": "https://www.nocutnews.co.kr",
       "feeds": [
         {
-          "url": "https://www.nocutnews.co.kr/sitemap.xml",
+          "url": "https://en.nocutnews.co.kr/sitemap.xml",
           "kind": "sitemap"
         }
       ]
@@ -1507,5 +1509,5 @@
   "blocked": [
     "breaknews"
   ],
-  "generated_at": "2026-10-18T09:25:28+00:00"
+  "generated_at": "2026-10-18T20:53:36+00:00"
 }
