@@ -94,6 +94,7 @@ def count(limit: int, minutes: float = 60) -> int:
     deadline = time.time() + minutes * 60
     state = {"sums": defaultdict(Counter), "docs": defaultdict(Counter), "done": []}
     total = Counter()
+    misses: Counter = Counter()  # (host, reason) -> statements skipped
     guard = threading.Lock()
 
     def save() -> None:
@@ -108,16 +109,24 @@ def count(limit: int, minutes: float = 60) -> int:
                     return
                 if n:
                     time.sleep(HOST_PAUSE)
-                if http.refusal(url):
+                why = http.refusal(url)
+                if why:
+                    misses[(host, why)] += 1
                     continue
                 try:
                     r = http.get(c, url)
-                except httpx.HTTPError:
+                except httpx.HTTPError as e:
+                    misses[(host, type(e).__name__)] += 1
+                    time.sleep(5)
                     continue
                 if r.status_code != 200:
+                    misses[(host, f"http {r.status_code}")] += 1
+                    time.sleep(5)
                     continue
                 src = srcs[source]
                 text = A.statement_text(decode_html(r.content), src["body"])
+                if len(text) < 50:
+                    misses[(host, "no text found")] += 1
                 words = A.words(f"{title}\n{text}")
                 with guard:
                     g = group_of(src)
@@ -132,6 +141,8 @@ def count(limit: int, minutes: float = 60) -> int:
     with guard:
         save()
     print(f"counted {total['n']} of {len(rows)} statements waiting")
+    for (host, why), n in misses.most_common():
+        print(f"  {host}: {n} {why}")
     return total["n"]
 
 
