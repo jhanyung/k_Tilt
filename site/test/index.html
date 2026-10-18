@@ -1,0 +1,563 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>나의 뉴스 습관 테스트 | 기울기</title>
+<meta name="description" content="같은 사건을 다룬 실제 기사 제목 12쌍. 먼저 눌러 볼 제목을 고르면, 어떤 제목에 먼저 손이 가는지 보여드립니다.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="나의 뉴스 습관 테스트">
+<meta property="og:description" content="같은 사건, 다른 제목. 12번 고르면 어떤 제목에 먼저 손이 가는지 보여드립니다.">
+<meta property="og:image" content="/test/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="theme-color" content="#F2F3F0">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@400;500;600&family=Noto+Serif+KR:wght@600;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --paper: #F2F3F0;
+  --paper-deep: #E6E8E3;
+  --ink: #1F2328;
+  --ink-soft: #545B63;
+  --alu: #9AA3AB;
+  --alu-dark: #6E7780;
+  --vial: #D7E36A;
+  --vial-deep: #B9C64A;
+  --white: #FFFFFF;
+  --serif: "Noto Serif KR", "Noto Serif CJK KR", "AppleMyungjo", serif;
+  --sans: "IBM Plex Sans KR", "Apple SD Gothic Neo", "Malgun Gothic", sans-serif;
+  --gutter: 20px;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font: 400 16px/1.65 var(--sans);
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+a { color: inherit; }
+button { font: inherit; color: inherit; }
+:focus-visible { outline: 3px solid var(--ink); outline-offset: 3px; }
+
+.wrap { max-width: 560px; margin: 0 auto; padding: 0 var(--gutter) 56px; }
+.top { display: flex; align-items: center; justify-content: space-between; padding: 18px 0 8px; }
+.wordmark { font: 900 20px/1 var(--serif); text-decoration: none; letter-spacing: -0.02em; }
+.top .count { font-size: 14px; color: var(--ink-soft); font-variant-numeric: tabular-nums; }
+
+/* ---------- the level (수평계) ---------- */
+.level { display: block; width: 100%; height: auto; margin: 8px 0 4px; overflow: visible; }
+.level .beam { transform-origin: 50% 50%; transform-box: view-box; transition: transform 1.4s cubic-bezier(.22,1.4,.36,1); }
+.level .bubble { transition: transform 1.4s cubic-bezier(.22,1.2,.36,1); }
+.level.wobble .beam { animation: wobble .7s ease-out; }
+@keyframes wobble {
+  0% { transform: rotate(0deg); } 30% { transform: rotate(-2.2deg); }
+  60% { transform: rotate(1.4deg); } 85% { transform: rotate(-.5deg); } 100% { transform: rotate(0deg); }
+}
+.ends { display: flex; justify-content: space-between; font-size: 13px; color: var(--ink-soft); margin-top: 14px; }
+.ends[hidden] { display: none; }
+
+/* ---------- intro ---------- */
+.intro h1 { font: 900 clamp(34px, 9vw, 46px)/1.18 var(--serif); letter-spacing: -0.03em; margin: 28px 0 14px; }
+.intro .lede { font-size: 18px; margin: 0 0 28px; }
+.intro .fine { font-size: 14px; color: var(--ink-soft); margin: 18px 0 0; }
+
+.btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-height: 52px; padding: 0 26px; border-radius: 26px;
+  border: 2px solid var(--ink); background: var(--ink); color: var(--paper);
+  font-weight: 600; font-size: 17px; cursor: pointer; text-decoration: none;
+}
+.btn.ghost { background: transparent; color: var(--ink); }
+.btn.wide { width: 100%; }
+.btn:active { transform: translateY(1px); }
+
+/* ---------- question ---------- */
+.q .context { font-size: 15px; color: var(--ink-soft); margin: 22px 0 4px; }
+.q h2 { font: 600 19px/1.4 var(--sans); margin: 0 0 18px; }
+.choice {
+  display: block; width: 100%; text-align: left; cursor: pointer;
+  background: var(--white); border: 1.5px solid var(--alu);
+  border-left: 7px solid var(--ink); border-radius: 4px 10px 10px 4px;
+  padding: 20px 18px 20px 18px; margin: 0 0 14px;
+  font: 700 clamp(19px, 5.2vw, 22px)/1.45 var(--serif); letter-spacing: -0.015em;
+  transition: background .15s, border-color .15s;
+}
+.choice:hover { border-color: var(--ink); }
+.choice.picked { background: var(--vial); border-color: var(--ink); }
+.q .nav { display: flex; justify-content: space-between; align-items: center; margin-top: 10px; }
+.linkbtn { background: none; border: 0; padding: 8px 0; text-decoration: underline; text-underline-offset: 3px; color: var(--ink-soft); cursor: pointer; font-size: 15px; }
+.linkbtn[disabled] { visibility: hidden; }
+
+/* ---------- result ---------- */
+.result .you { font-size: 15px; color: var(--ink-soft); margin: 26px 0 2px; }
+.result h1 { font: 900 clamp(32px, 8.6vw, 44px)/1.2 var(--serif); letter-spacing: -0.03em; margin: 0 0 12px; }
+.result .desc { font-size: 18px; margin: 0 0 8px; }
+.result .voice { font-size: 16px; margin: 0; color: var(--ink); }
+.badge { display: inline-block; background: var(--vial); border-radius: 4px; padding: 0 8px; font-weight: 600; font-size: 14px; margin-right: 6px; }
+.not-politics { font-size: 14px; color: var(--ink-soft); margin: 10px 0 0; }
+
+.scales { margin: 30px 0 8px; border-top: 1.5px solid var(--ink); }
+.scale { display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 10px; padding: 14px 0; border-bottom: 1px solid var(--paper-deep); }
+.scale .l { text-align: left; font-size: 14px; }
+.scale .r { text-align: right; font-size: 14px; }
+.scale .on { font-weight: 600; }
+.dots { display: flex; gap: 6px; }
+.dots i { width: 14px; height: 14px; border-radius: 50%; border: 1.5px solid var(--ink); display: block; }
+.dots i.f { background: var(--ink); }
+.scale-name { grid-column: 1 / -1; font-size: 13px; color: var(--ink-soft); margin-bottom: -6px; }
+
+.share { margin: 28px 0 0; display: grid; gap: 10px; }
+.share .row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.toast { min-height: 24px; font-size: 14px; color: var(--ink-soft); text-align: center; margin: 6px 0 0; }
+
+.picks h2, .closing h2 { font: 700 22px/1.35 var(--serif); margin: 44px 0 6px; letter-spacing: -0.02em; }
+.picks .sub { font-size: 15px; color: var(--ink-soft); margin: 0 0 18px; }
+.pair { padding: 16px 0 18px; border-top: 1px solid var(--alu); }
+.pair .ctx { font-size: 13px; color: var(--ink-soft); margin: 0 0 8px; }
+.pair .mine, .pair .other { margin: 0; }
+.pair .mine { font: 700 18px/1.5 var(--serif); }
+.pair .other { font: 600 15px/1.55 var(--serif); color: var(--ink-soft); margin-top: 10px; padding-left: 12px; border-left: 3px solid var(--alu); }
+.pair .src { font: 400 13px/1.4 var(--sans); display: block; margin-top: 3px; color: var(--ink-soft); }
+.pair .src a { text-underline-offset: 2px; }
+.tally { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 8px; padding: 0; list-style: none; }
+.tally li { background: var(--white); border: 1px solid var(--alu); border-radius: 16px; padding: 3px 12px; font-size: 14px; }
+
+.closing p { font-size: 17px; margin: 0 0 18px; }
+.method { font-size: 13px; color: var(--ink-soft); margin: 40px 0 0; }
+
+.view[hidden] { display: none; }
+.enter { animation: enter .35s ease-out; }
+@keyframes enter { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) {
+  .level .beam, .level .bubble { transition: none; }
+  .level.wobble .beam, .enter { animation: none; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <a class="wordmark" href="/" aria-label="기울기 첫 화면">기울기</a>
+    <span class="count" id="count" aria-live="polite"></span>
+  </header>
+
+  <svg class="level" id="level" viewBox="0 0 520 96" role="img" aria-label="수평계">
+    <defs>
+      <linearGradient id="alu" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#C3C9CE"/><stop offset=".5" stop-color="#9AA3AB"/><stop offset="1" stop-color="#7C858E"/>
+      </linearGradient>
+      <linearGradient id="fluid" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#E4EE8A"/><stop offset="1" stop-color="#C3D04F"/>
+      </linearGradient>
+      <clipPath id="vialclip"><rect x="150" y="30" width="220" height="36" rx="18"/></clipPath>
+    </defs>
+    <g class="beam" id="beam">
+      <rect x="6" y="20" width="508" height="56" rx="10" fill="url(#alu)"/>
+      <rect x="6" y="20" width="508" height="56" rx="10" fill="none" stroke="#6E7780" stroke-width="1.5"/>
+      <g id="ticks" stroke="#4A5259" stroke-width="2" stroke-linecap="round"></g>
+      <rect x="146" y="26" width="228" height="44" rx="22" fill="#5E676F"/>
+      <rect x="150" y="30" width="220" height="36" rx="18" fill="url(#fluid)"/>
+      <g clip-path="url(#vialclip)">
+        <g class="bubble" id="bubble">
+          <ellipse cx="260" cy="40" rx="30" ry="9" fill="#FFFFFF" fill-opacity=".92"/>
+          <ellipse cx="252" cy="37" rx="12" ry="3" fill="#FFFFFF"/>
+        </g>
+      </g>
+      <line x1="236" y1="30" x2="236" y2="66" stroke="#1F2328" stroke-width="2"/>
+      <line x1="284" y1="30" x2="284" y2="66" stroke="#1F2328" stroke-width="2"/>
+    </g>
+  </svg>
+  <div class="ends" id="ends" hidden><span>정부·여당 목소리</span><span>야당·비판 목소리</span></div>
+
+  <main>
+    <section class="view intro" id="intro">
+      <h1>같은 사건,<br>다른 제목.</h1>
+      <p class="lede">실제 기사 제목 12쌍이 나옵니다. 먼저 눌러 볼 제목을 고르면, 어떤 제목에 먼저 손이 가는지 보여드립니다.</p>
+      <button class="btn wide" id="start" type="button">테스트 시작하기</button>
+      <p class="fine">2분이면 끝납니다. 언론사 이름은 마지막에 공개합니다. 답변은 이 기기 밖으로 보내지 않습니다.</p>
+    </section>
+
+    <section class="view q" id="question" hidden aria-live="polite">
+      <p class="context" id="context"></p>
+      <h2>먼저 눌러 볼 제목을 고르세요.</h2>
+      <div id="choices"></div>
+      <div class="nav">
+        <button class="linkbtn" id="back" type="button">이전 질문</button>
+      </div>
+    </section>
+
+    <section class="view result" id="result" hidden>
+      <p class="you">나의 뉴스 습관</p>
+      <h1 id="typeName"></h1>
+      <p class="desc" id="typeDesc"></p>
+      <p class="voice" id="voiceLine"></p>
+      <p class="not-politics">정치 성향을 판정하지 않습니다. 고른 제목에서 보이는 습관만 셉니다.</p>
+
+      <div class="scales" id="scales"></div>
+
+      <div class="share">
+        <button class="btn wide" id="shareBtn" type="button">결과 이미지 공유하기</button>
+        <div class="row">
+          <button class="btn ghost" id="saveBtn" type="button">이미지 저장</button>
+          <button class="btn ghost" id="copyBtn" type="button">링크 복사</button>
+        </div>
+        <p class="toast" id="toast" role="status"></p>
+      </div>
+
+      <div class="picks" id="picks">
+        <h2>내가 고른 제목과 그 반대편 제목</h2>
+        <p class="sub">위가 내가 고른 제목, 아래가 같은 사건을 다른 언론사가 쓴 제목입니다.</p>
+        <ul class="tally" id="tally" aria-label="내가 고른 제목을 쓴 언론사"></ul>
+        <div id="pairList"></div>
+      </div>
+
+      <div class="closing">
+        <h2>매일 이렇게 나란히 봅니다</h2>
+        <p>기울기는 아침과 저녁, 가장 많이 보도된 뉴스 10건을 골라 각 언론이 무엇을 다르게 썼는지, 누구의 말을 옮겼는지 나란히 보여줍니다.</p>
+        <a class="btn wide" href="/">기울기 첫 화면 보기</a>
+        <p style="text-align:center;margin:14px 0 0"><button class="linkbtn" id="again" type="button">테스트 다시 하기</button></p>
+      </div>
+
+      <p class="method" id="method"></p>
+    </section>
+  </main>
+</div>
+
+<canvas id="card" width="1080" height="1350" hidden></canvas>
+
+<script>
+(() => {
+  const AXES = {
+    voice:   { name: "누구의 목소리부터", lo: "정부·여당", hi: "야당·비판", poles: ["gov", "critic"] },
+    tone:    { name: "어떤 말투를", lo: "사실 전달", hi: "해석·평가", poles: ["fact", "interp"] },
+    outlook: { name: "어느 쪽 전망을", lo: "기대", hi: "경계", poles: ["hope", "caution"] },
+  };
+  // Type = tone state x outlook state (each: 0 = low pole, 1 = even, 2 = high pole).
+  const TYPES = {
+    "00": ["밝은 기록자", "일어난 일을 그대로 읽되, 좋아진 점을 먼저 봅니다."],
+    "01": ["담백한 기록자", "꾸밈없는 사실을 좋아하고, 좋고 나쁨을 고르게 봅니다."],
+    "02": ["깐깐한 감시자", "사실만 읽되, 무엇이 잘못될 수 있는지 먼저 짚습니다."],
+    "10": ["열린 낙관가", "사실과 해석을 고루 읽고, 가능성 쪽에 마음이 갑니다."],
+    "11": ["수평계형 독자", "사실과 해석, 기대와 우려를 모두 같은 무게로 고릅니다."],
+    "12": ["신중한 점검자", "사실과 해석을 고루 읽고, 위험 신호를 놓치지 않습니다."],
+    "20": ["큰 그림 탐색가", "숫자 너머의 의미를 찾고, 앞으로 나아질 길을 봅니다."],
+    "21": ["맥락 수집가", "왜 이런 일이 생겼는지가 궁금하고, 판단은 열어 둡니다."],
+    "22": ["행간을 읽는 회의론자", "제목 뒤의 의도를 따져 보고, 숨은 위험을 먼저 찾습니다."],
+  };
+  const VOICE = [
+    "정부·여당의 목소리로 시작하는 제목에 먼저 손이 갑니다.",
+    "정부·여당과 야당·비판 측 목소리를 같은 비율로 골랐습니다.",
+    "야당·비판 측 목소리로 시작하는 제목에 먼저 손이 갑니다.",
+  ];
+
+  const $ = (id) => document.getElementById(id);
+  const views = { intro: $("intro"), question: $("question"), result: $("result") };
+  let pairs = [], meta = {}, order = [], answers = [], step = 0, shared = null;
+
+  // ---------- level ----------
+  const ticks = $("ticks");
+  function drawTicks(done) {
+    ticks.innerHTML = "";
+    const xs = [];
+    for (let i = 0; i < 12; i++) xs.push(i < 6 ? 30 + i * 19 : 395 + (i - 6) * 19);
+    xs.forEach((x, i) => {
+      const l = document.createElementNS("http://www.w3.org/2000/svg", "line");
+      l.setAttribute("x1", x); l.setAttribute("x2", x);
+      l.setAttribute("y1", i < done ? 32 : 40); l.setAttribute("y2", 64);
+      if (i < done) { l.setAttribute("stroke", "#1F2328"); l.setAttribute("stroke-width", "3"); }
+      ticks.appendChild(l);
+    });
+  }
+  function tilt(score) {
+    // score: -1 (all gov) .. +1 (all critic). The chosen side rises and the bubble runs to it.
+    $("beam").style.transform = `rotate(${(-score * 5).toFixed(2)}deg)`;
+    $("bubble").style.transform = `translateX(${(score * 72).toFixed(1)}px)`;
+  }
+  function wobble() {
+    const lv = $("level");
+    lv.classList.remove("wobble"); void lv.getBoundingClientRect(); lv.classList.add("wobble");
+  }
+
+  // ---------- flow ----------
+  function show(name) {
+    for (const [k, el] of Object.entries(views)) {
+      el.hidden = k !== name;
+      if (k === name) { el.classList.remove("enter"); void el.offsetWidth; el.classList.add("enter"); }
+    }
+    $("ends").hidden = name !== "result";
+    window.scrollTo({ top: 0 });
+  }
+  function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+
+  function start() {
+    answers = new Array(pairs.length).fill(null);
+    order = pairs.map((p) => shuffle([0, 1]));
+    step = 0; tilt(0); drawTicks(0); show("question"); renderQuestion();
+  }
+  function renderQuestion() {
+    const p = pairs[step];
+    $("count").textContent = `${step + 1} / ${pairs.length}`;
+    $("context").textContent = `${p.context}을(를) 다룬 두 제목입니다.`.replace("을(를)", josa(p.context));
+    const box = $("choices"); box.innerHTML = "";
+    order[step].forEach((k) => {
+      const b = document.createElement("button");
+      b.type = "button"; b.className = "choice"; b.textContent = p.options[k].title;
+      if (answers[step] === k) b.classList.add("picked");
+      b.addEventListener("click", () => pick(k, b));
+      box.appendChild(b);
+    });
+    $("back").disabled = step === 0;
+    drawTicks(step);
+    const first = box.querySelector(".choice"); if (first && step > 0) first.focus({ preventScroll: true });
+  }
+  function josa(word) {
+    const c = word.charCodeAt(word.length - 1);
+    if (c < 0xac00 || c > 0xd7a3) return "을(를)";
+    return (c - 0xac00) % 28 ? "을" : "를";
+  }
+  function pick(k, el) {
+    answers[step] = k;
+    el.classList.add("picked");
+    wobble();
+    setTimeout(() => {
+      if (step < pairs.length - 1) { step++; renderQuestion(); }
+      else finish();
+    }, 260);
+  }
+  $("back").addEventListener("click", () => { if (step > 0) { step--; renderQuestion(); } });
+
+  // ---------- scoring ----------
+  function tally(ans) {
+    const s = { voice: 0, tone: 0, outlook: 0 }, n = { voice: 0, tone: 0, outlook: 0 };
+    pairs.forEach((p, i) => {
+      if (ans[i] == null) return;
+      n[p.axis]++;
+      if (p.options[ans[i]].pole === AXES[p.axis].poles[1]) s[p.axis]++;
+    });
+    return { s, n };
+  }
+  const state = (hi, n) => (hi * 2 === n ? 1 : hi * 2 > n ? 2 : 0);
+  function code(ans) {
+    const { s, n } = tally(ans);
+    return `${state(s.tone, n.tone)}${state(s.outlook, n.outlook)}${state(s.voice, n.voice)}`;
+  }
+
+  function finish() {
+    const c = code(answers);
+    history.replaceState(null, "", `?r=${c}`);
+    renderResult(c, answers);
+  }
+
+  function renderResult(c, ans) {
+    show("result");
+    $("count").textContent = "";
+    const [name, desc] = TYPES[c.slice(0, 2)];
+    const v = +c[2];
+    $("typeName").textContent = name;
+    $("typeDesc").textContent = desc;
+    $("voiceLine").innerHTML = (v === 1 ? '<span class="badge">균형</span>' : "") + VOICE[v];
+
+    const sc = $("scales"); sc.innerHTML = "";
+    const counts = ans ? tally(ans) : null;
+    ["voice", "tone", "outlook"].forEach((ax) => {
+      const a = AXES[ax];
+      const st = ax === "voice" ? v : +c[ax === "tone" ? 0 : 1];
+      const hi = counts ? counts.s[ax] : st * 2;
+      const n = counts ? counts.n[ax] : 4;
+      const row = document.createElement("div"); row.className = "scale";
+      const dots = Array.from({ length: n }, (_, i) => `<i class="${i < n - hi ? "f" : ""}"></i>`).join("");
+      row.innerHTML = `<span class="scale-name">${a.name}</span>
+        <span class="l ${st === 0 ? "on" : ""}">${a.lo} ${n - hi}</span>
+        <span class="dots" aria-hidden="true">${dots}</span>
+        <span class="r ${st === 2 ? "on" : ""}">${hi} ${a.hi}</span>`;
+      sc.appendChild(row);
+    });
+
+    // The level settles at the voice score: -1 all government/ruling, +1 all opposition/critics.
+    const vs = counts ? (counts.s.voice - (counts.n.voice - counts.s.voice)) / Math.max(1, counts.n.voice) : v - 1;
+    tilt(0); drawTicks(12);
+    requestAnimationFrame(() => setTimeout(() => tilt(vs), 120));
+
+    $("picks").hidden = !ans;
+    if (ans) renderPicks(ans);
+    shared = { c, name, desc, v, counts };
+    $("method").textContent = `제목은 ${meta.collected}에 수집했습니다. ${meta.note} 목소리: 제목이 정부·여당과 야당·비판 측 중 누구의 말이나 입장으로 시작하는지. 말투: 일어난 일을 전하는지, 해석이나 평가를 덧붙이는지. 전망: 좋아진 점과 위험 중 무엇을 앞세우는지.`;
+  }
+
+  function renderPicks(ans) {
+    const list = $("pairList"); list.innerHTML = "";
+    const count = {};
+    pairs.forEach((p, i) => {
+      const mine = p.options[ans[i]], other = p.options[1 - ans[i]];
+      count[mine.name] = (count[mine.name] || 0) + 1;
+      const d = document.createElement("div"); d.className = "pair";
+      d.innerHTML = `<p class="ctx"></p><p class="mine"></p><p class="other"></p>`;
+      d.querySelector(".ctx").textContent = p.context;
+      fill(d.querySelector(".mine"), mine); fill(d.querySelector(".other"), other);
+      list.appendChild(d);
+    });
+    const t = $("tally"); t.innerHTML = "";
+    Object.entries(count).sort((a, b) => b[1] - a[1]).forEach(([k, n]) => {
+      const li = document.createElement("li"); li.textContent = `${k} ${n}`; t.appendChild(li);
+    });
+  }
+  function fill(el, o) {
+    el.textContent = o.title;
+    const s = document.createElement("span"); s.className = "src";
+    const a = document.createElement("a"); a.href = o.url; a.target = "_blank"; a.rel = "noopener"; a.textContent = `${o.name} 원문`;
+    s.appendChild(a); el.appendChild(s);
+  }
+
+  // ---------- share card ----------
+  async function drawCard() {
+    await Promise.all([
+      document.fonts.load('900 96px "Noto Serif KR"'),
+      document.fonts.load('600 40px "IBM Plex Sans KR"'),
+      document.fonts.load('400 40px "IBM Plex Sans KR"'),
+    ]).catch(() => {});
+    const cv = $("card"), g = cv.getContext("2d"), W = 1080, H = 1350, P = 84, TW = W - 2 * P;
+    g.fillStyle = "#F2F3F0"; g.fillRect(0, 0, W, H);
+    g.textBaseline = "alphabetic"; g.textAlign = "left";
+    g.fillStyle = "#1F2328"; g.font = '900 48px "Noto Serif KR", serif';
+    g.fillText("기울기", P, 118);
+    g.fillStyle = "#545B63"; g.font = '400 30px "IBM Plex Sans KR", sans-serif';
+    g.fillText("나의 뉴스 습관", P, 166);
+
+    // level, tilted toward the side the reader leaned on "whose voice first"
+    const vs = shared.counts
+      ? (shared.counts.s.voice - (shared.counts.n.voice - shared.counts.s.voice)) / Math.max(1, shared.counts.n.voice)
+      : shared.v - 1;
+    g.save(); g.translate(W / 2, 290); g.rotate((-vs * 5 * Math.PI) / 180);
+    const bh = 100;
+    const grad = g.createLinearGradient(0, -bh / 2, 0, bh / 2);
+    grad.addColorStop(0, "#C3C9CE"); grad.addColorStop(.5, "#9AA3AB"); grad.addColorStop(1, "#7C858E");
+    rr(g, -TW / 2, -bh / 2, TW, bh, 18); g.fillStyle = grad; g.fill();
+    rr(g, -220, -34, 440, 68, 34); g.fillStyle = "#5E676F"; g.fill();
+    rr(g, -212, -26, 424, 52, 26); g.fillStyle = "#D7E36A"; g.fill();
+    g.save(); rr(g, -212, -26, 424, 52, 26); g.clip();
+    g.fillStyle = "rgba(255,255,255,.92)"; g.beginPath(); g.ellipse(vs * 140, -9, 60, 16, 0, 0, 7); g.fill();
+    g.restore();
+    g.strokeStyle = "#1F2328"; g.lineWidth = 4;
+    [-46, 46].forEach((x) => { g.beginPath(); g.moveTo(x, -26); g.lineTo(x, 26); g.stroke(); });
+    g.restore();
+    g.fillStyle = "#545B63"; g.font = '400 26px "IBM Plex Sans KR", sans-serif';
+    g.fillText("정부·여당 목소리", P, 418);
+    g.textAlign = "right"; g.fillText("야당·비판 목소리", W - P, 418); g.textAlign = "left";
+
+    // type name, shrunk to one line
+    let size = 92;
+    do { g.font = `900 ${size}px "Noto Serif KR", serif`; size -= 4; }
+    while (g.measureText(shared.name).width > TW && size > 56);
+    g.fillStyle = "#1F2328"; g.fillText(shared.name, P, 556);
+
+    let y = 630;
+    g.font = '400 36px "IBM Plex Sans KR", sans-serif';
+    wrap(g, shared.desc, P, y, TW).forEach((line, i) => g.fillText(line, P, (y = 630 + i * 52)));
+
+    // voice line, with the balance badge inline when the reader split evenly
+    y += 66;
+    let x0 = P;
+    if (shared.v === 1) {
+      g.fillStyle = "#D7E36A"; rr(g, P, y - 34, 86, 46, 8); g.fill();
+      g.fillStyle = "#1F2328"; g.font = '600 28px "IBM Plex Sans KR", sans-serif'; g.fillText("균형", P + 15, y - 1);
+      x0 = P + 104;
+    }
+    g.fillStyle = "#1F2328"; g.font = '400 32px "IBM Plex Sans KR", sans-serif';
+    wrap(g, VOICE[shared.v], x0, y, W - P - x0).forEach((line, i) => g.fillText(line, i ? P : x0, y + i * 46));
+
+    // three scales, anchored above the footer
+    const sy = H - 500;
+    g.fillStyle = "#1F2328"; g.fillRect(P, sy - 44, TW, 3);
+    ["voice", "tone", "outlook"].forEach((ax, k) => {
+      const a = AXES[ax];
+      const st = ax === "voice" ? shared.v : +shared.c[ax === "tone" ? 0 : 1];
+      const n = shared.counts ? shared.counts.n[ax] : 4;
+      const hi = shared.counts ? shared.counts.s[ax] : st * 2;
+      const ry = sy + k * 100;
+      g.fillStyle = "#545B63"; g.font = '400 26px "IBM Plex Sans KR", sans-serif'; g.textAlign = "left";
+      g.fillText(a.name, P, ry);
+      g.fillStyle = "#1F2328";
+      g.font = `${st === 0 ? 600 : 400} 32px "IBM Plex Sans KR", sans-serif`;
+      g.fillText(`${a.lo} ${n - hi}`, P, ry + 46);
+      g.font = `${st === 2 ? 600 : 400} 32px "IBM Plex Sans KR", sans-serif`;
+      g.textAlign = "right"; g.fillText(`${hi} ${a.hi}`, W - P, ry + 46); g.textAlign = "left";
+      for (let i = 0; i < n; i++) {
+        const cx = W / 2 - ((n - 1) * 44) / 2 + i * 44;
+        g.beginPath(); g.arc(cx, ry + 35, 15, 0, 7);
+        g.lineWidth = 3; g.strokeStyle = "#1F2328"; g.stroke();
+        if (i < n - hi) { g.fillStyle = "#1F2328"; g.fill(); }
+      }
+    });
+
+    // footer
+    g.fillStyle = "#1F2328"; g.fillRect(P, H - 160, W - 2 * P, 3);
+    g.font = '600 36px "IBM Plex Sans KR", sans-serif';
+    g.fillText("같은 사건, 다른 제목. 나도 해보기", P, H - 104);
+    g.fillStyle = "#545B63"; g.font = '400 30px "IBM Plex Sans KR", sans-serif';
+    g.fillText(location.host + "/test", P, H - 58);
+    return new Promise((res) => cv.toBlob(res, "image/png"));
+  }
+  function rr(g, x, y, w, h, r) {
+    g.beginPath(); g.moveTo(x + r, y); g.arcTo(x + w, y, x + w, y + h, r); g.arcTo(x + w, y + h, x, y + h, r);
+    g.arcTo(x, y + h, x, y, r); g.arcTo(x, y, x + w, y, r); g.closePath();
+  }
+  function wrap(g, text, x, y, max) {
+    const words = text.split(" "), lines = []; let line = "";
+    for (const w of words) {
+      const t = line ? line + " " + w : w;
+      if (g.measureText(t).width > max && line) { lines.push(line); line = w; } else line = t;
+    }
+    if (line) lines.push(line);
+    return lines;
+  }
+  function toast(msg) { $("toast").textContent = msg; setTimeout(() => ($("toast").textContent = ""), 3000); }
+  const shareUrl = () => `${location.origin}${location.pathname}?r=${shared.c}`;
+
+  $("shareBtn").addEventListener("click", async () => {
+    try {
+      const blob = await drawCard();
+      const file = new File([blob], "giulgi-result.png", { type: "image/png" });
+      if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        await navigator.share({ files: [file], title: "나의 뉴스 습관", text: `나는 '${shared.name}'. 같은 사건, 다른 제목. ${shareUrl()}` });
+      } else if (navigator.share) {
+        await navigator.share({ title: "나의 뉴스 습관", text: `나는 '${shared.name}'.`, url: shareUrl() });
+      } else { download(blob); toast("이 브라우저는 바로 공유를 지원하지 않아 이미지를 저장했습니다."); }
+    } catch (e) { if (e && e.name !== "AbortError") toast("공유하지 못했습니다. 이미지 저장을 이용해 주세요."); }
+  });
+  $("saveBtn").addEventListener("click", async () => { download(await drawCard()); toast("이미지를 저장했습니다."); });
+  $("copyBtn").addEventListener("click", async () => {
+    try { await navigator.clipboard.writeText(shareUrl()); toast("링크를 복사했습니다."); }
+    catch { toast(shareUrl()); }
+  });
+  function download(blob) {
+    const a = document.createElement("a"); a.href = URL.createObjectURL(blob); a.download = "giulgi-result.png";
+    document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+  }
+  $("start").addEventListener("click", start);
+  $("again").addEventListener("click", () => { history.replaceState(null, "", location.pathname); start(); });
+
+  // ---------- boot ----------
+  fetch("pairs.json").then((r) => r.json()).then((d) => {
+    pairs = d.pairs; meta = d.meta; drawTicks(0);
+    const r = new URLSearchParams(location.search).get("r");
+    if (r && /^[0-2]{3}$/.test(r)) {
+      // A shared result: show the type, then invite the visitor to take the test.
+      renderResult(r, null);
+      $("shareBtn").textContent = "나도 테스트해 보기";
+      $("shareBtn").replaceWith($("shareBtn").cloneNode(true));
+      $("shareBtn").addEventListener("click", () => { history.replaceState(null, "", location.pathname); start(); });
+    }
+  }).catch(() => {
+    $("intro").insertAdjacentHTML("beforeend", '<p class="fine">질문을 불러오지 못했습니다. 새로고침해 주세요.</p>');
+    $("start").disabled = true;
+  });
+})();
+</script>
+</body>
+</html>

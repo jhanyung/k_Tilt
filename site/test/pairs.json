@@ -1,0 +1,260 @@
+{
+ "meta": {
+  "collected": "2026년 10월 16~18일",
+  "note": "제목은 언론사가 게재한 그대로입니다. 링크는 각 언론사 원문으로 연결됩니다."
+ },
+ "pairs": [
+  {
+   "id": 1,
+   "axis": "voice",
+   "context": "대법원장 탄핵 논의",
+   "options": [
+    {
+     "outlet": "insight",
+     "name": "인사이트",
+     "title": "김민석 “조희대 탄핵, 모든 방법과 경로 논의 시작”",
+     "url": "https://www.insight.co.kr/news/578003",
+     "pole": "gov"
+    },
+    {
+     "outlet": "daejonilbo",
+     "name": "대전일보",
+     "title": "국힘, 조희대 탄핵 논의에 \"민주당 탄핵병 도져…삼권분립 도전\"",
+     "url": "https://www.daejonilbo.com/news/articleView.html?idxno=2307470",
+     "pole": "critic"
+    }
+   ]
+  },
+  {
+   "id": 2,
+   "axis": "tone",
+   "context": "일본 총리의 야스쿠니 신사 공물 봉납",
+   "options": [
+    {
+     "outlet": "dt",
+     "name": "디지털타임스",
+     "title": "다카이치 총리, 야스쿠니 신사에 공물 봉납…신사 참배는 보류",
+     "url": "https://www.dt.co.kr/article/12089542",
+     "pole": "fact"
+    },
+    {
+     "outlet": "munhwa",
+     "name": "문화일보",
+     "title": "직접 가는 대신 공물만…다카이치, 올해도 야스쿠니 참배 보류할 듯",
+     "url": "https://www.munhwa.com/article/11624141",
+     "pole": "interp"
+    }
+   ]
+  },
+  {
+   "id": 3,
+   "axis": "outlook",
+   "context": "IMF의 한국 잠재성장률 전망",
+   "options": [
+    {
+     "outlet": "fnnews",
+     "name": "파이낸셜뉴스",
+     "title": "반도체發 잠재성장률 반등…40년 만에 2년 연속 오른다",
+     "url": "https://www.fnnews.com/news/202610180848382702",
+     "pole": "hope"
+    },
+    {
+     "outlet": "newspim",
+     "name": "뉴스핌",
+     "title": "韓 잠재성장률 40년 만에 2년 연속 상승…'반도체 착시' 우려도",
+     "url": "https://www.newspim.com/news/view/20261018000027",
+     "pole": "caution"
+    }
+   ]
+  },
+  {
+   "id": 4,
+   "axis": "voice",
+   "context": "국무회의 생중계 논란",
+   "options": [
+    {
+     "outlet": "hani",
+     "name": "한겨레",
+     "title": "이 대통령 “국무회의 비공개 주장 동의 못 해…국정 공개가 원칙”",
+     "url": "https://www.hani.co.kr/arti/politics/bluehouse/1282703.html",
+     "pole": "gov"
+    },
+    {
+     "outlet": "munhwa",
+     "name": "문화일보",
+     "title": "장동혁 “국무회의 생중계 계속하라…덕분에 李대통령 진짜 얼굴 봐”",
+     "url": "https://www.munhwa.com/article/11624206",
+     "pole": "critic"
+    }
+   ]
+  },
+  {
+   "id": 5,
+   "axis": "tone",
+   "context": "국민연금 3분기 국내 주식 평가손실",
+   "options": [
+    {
+     "outlet": "sedaily",
+     "name": "서울경제",
+     "title": "국민연금, 3분기 국내 증시 손실 182조 넘어…7분기만 [이런국장 저런주식]",
+     "url": "https://www.sedaily.com/article/20102861",
+     "pole": "fact"
+    },
+    {
+     "outlet": "etoday",
+     "name": "이투데이",
+     "title": "'반도체 쏠림' 부메랑⋯국민연금, 3분기 보유주식 182조 증발",
+     "url": "https://www.etoday.co.kr/news/view/2636962",
+     "pole": "interp"
+    }
+   ]
+  },
+  {
+   "id": 6,
+   "axis": "outlook",
+   "context": "코스피 8거래일 만의 반등",
+   "options": [
+    {
+     "outlet": "etnews",
+     "name": "전자신문",
+     "title": "코스피 2%·코스닥 4% 반등…코스피 8거래일 만에 상승",
+     "url": "https://www.etnews.com/20261016000278",
+     "pole": "hope"
+    },
+    {
+     "outlet": "ebn",
+     "name": "EBN",
+     "title": "4% 급등했는데 아직 약하다…코스피 반등에 쏟아진 경고",
+     "url": "https://www.ebn.co.kr/news/articleView.html?idxno=1728126",
+     "pole": "caution"
+    }
+   ]
+  },
+  {
+   "id": 7,
+   "axis": "voice",
+   "context": "추미애 경기지사 '소방 재정 빨대' 발언 사과",
+   "options": [
+    {
+     "outlet": "daejonilbo",
+     "name": "대전일보",
+     "title": "김민석, 추미애 '소방 재정 빨대' 발언 공식 사과…\"재발 방지 조치\"",
+     "url": "https://www.daejonilbo.com/news/articleView.html?idxno=2307484",
+     "pole": "gov"
+    },
+    {
+     "outlet": "dailian",
+     "name": "데일리안",
+     "title": "국민의힘, 추미애 사과에 \"빈소는 민원실 아냐…또 한 번의 무례\"",
+     "url": "https://www.dailian.co.kr/news/view/1702708/%EA%B5%AD%EB%AF%BC%EC%9D%98%ED%9E%98-%EC%B6%94%EB%AF%B8%EC%95%A0-%EC%82%AC%EA%B3%BC-%EB%B9%88%EC%86%8C-%EB%AF%BC%EC%9B%90%EC%8B%A4-%EC%95%84-2026",
+     "pole": "critic"
+    }
+   ]
+  },
+  {
+   "id": 8,
+   "axis": "tone",
+   "context": "트럼프 대통령의 대러 제재 면제",
+   "options": [
+    {
+     "outlet": "ytn",
+     "name": "YTN",
+     "title": "트럼프, 러시아 제재 면제 발표...\"미국 국익에 부합\"",
+     "url": "https://www.ytn.co.kr/_ln/0104_202610171309537820",
+     "pole": "fact"
+    },
+    {
+     "outlet": "joongang",
+     "name": "중앙일보",
+     "title": "선거 코앞인데 기름값 치솟자…트럼프, 러시아 제재까지 면제",
+     "url": "https://www.joongang.co.kr/article/25470544",
+     "pole": "interp"
+    }
+   ]
+  },
+  {
+   "id": 9,
+   "axis": "outlook",
+   "context": "정부의 첫 주택공급 정례 브리핑",
+   "options": [
+    {
+     "outlet": "heraldcorp",
+     "name": "헤럴드경제",
+     "title": "정부 “착공·분양·입주 상황판 가동”…주택 공급 모든 정보 한 번에",
+     "url": "https://biz.heraldcorp.com/article/10905356",
+     "pole": "hope"
+    },
+    {
+     "outlet": "hankookilbo",
+     "name": "한국일보",
+     "title": "집값 불안에 공급 성과 알리겠다는 정부… 착공은 목표의 37%",
+     "url": "https://www.hankookilbo.com/news/article/A2026101612080002239",
+     "pole": "caution"
+    }
+   ]
+  },
+  {
+   "id": 10,
+   "axis": "voice",
+   "context": "전시작전통제권 전환 조건을 둘러싼 한미 이견",
+   "options": [
+    {
+     "outlet": "mbn",
+     "name": "MBN",
+     "title": "민주당, 미국의 '전작권 새 조건' 언급에 \"빨리 충족해 전환해야\"",
+     "url": "https://www.mbn.co.kr/news/politics/5225568",
+     "pole": "gov"
+    },
+    {
+     "outlet": "dailian",
+     "name": "데일리안",
+     "title": "野, 한미 간 전작권 전환 시각차에 \"李정부 '무모한 속도전' 즉각 중단하라\"",
+     "url": "https://www.dailian.co.kr/news/view/1702495/%E9%87%8E-%ED%95%9C%EB%AF%B8-%EA%B0%84-%EC%A0%84%EC%9E%91%EA%B6%8C-%EC%A0%84%ED%99%98-%EC%8B%9C%EA%B0%81%EC%B0%A8-%EF%A7%A1%EC%A0%95-2026",
+     "pole": "critic"
+    }
+   ]
+  },
+  {
+   "id": 11,
+   "axis": "tone",
+   "context": "트럼프 대통령의 '현대 조지아 투자' 발언",
+   "options": [
+    {
+     "outlet": "obs",
+     "name": "OBS",
+     "title": "트럼프 \"현대, 조지아에 7천486억 원 투자 발표\"",
+     "url": "https://www.obsnews.co.kr/news/articleView.html?idxno=1540825",
+     "pole": "fact"
+    },
+    {
+     "outlet": "sisajournal",
+     "name": "시사저널",
+     "title": "트럼프 \"현대, 조지아에 7500억원 투자\"…유세서 집권 2기 성과 과시",
+     "url": "https://www.sisajournal.com/news/articleView.html?idxno=390617",
+     "pole": "interp"
+    }
+   ]
+  },
+  {
+   "id": 12,
+   "axis": "outlook",
+   "context": "부천 화재 순직 소방관 추모",
+   "options": [
+    {
+     "outlet": "newsis",
+     "name": "뉴시스",
+     "title": "여야, 부천 소방관 순직에 애도…\"소방 예산 챙길 것\" 한목소리(종합)",
+     "url": "https://www.newsis.com/view/NISX20261017_0003829937",
+     "pole": "hope"
+    },
+    {
+     "outlet": "dailian",
+     "name": "데일리안",
+     "title": "여야 대표, 순직 소방관 애도…張은 추미애 사과 촉구·金은 언급 안 해",
+     "url": "https://www.dailian.co.kr/news/view/1702686/%EC%97%AC%EC%95%BC-%EB%8C%80%ED%91%9C-%EC%88%9C%EC%A7%81-%EC%86%8C%EB%B0%A9%EA%B4%80-%EC%95%A0%EB%8F%84%E5%BC%B5-%EC%B6%94%EB%AF%B8%EC%95%A0-2026",
+     "pole": "caution"
+    }
+   ]
+  }
+ ]
+}
