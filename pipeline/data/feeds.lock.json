@@ -26,14 +26,22 @@
         }
       ]
     },
-    "businesspost": {
-      "name": "비즈니스포스트",
-      "group": "economic",
-      "home": "https://www.businesspost.co.kr",
+    "busan": {
+      "name": "부산일보",
+      "group": "regional",
+      "home": "https://www.busan.com",
       "feeds": [
         {
-          "url": "https://www.businesspost.co.kr/rss/Article.xml",
-          "kind": "rss"
+          "url": "https://www.busan.com/",
+          "kind": "page"
+        },
+        {
+          "url": "https://mobile.busan.com/politics",
+          "kind": "page"
+        },
+        {
+          "url": "https://mobile.busan.com/society",
+          "kind": "page"
         }
       ]
     },
@@ -129,6 +137,21 @@
         }
       ]
     },
+    "donga": {
+      "name": "동아일보",
+      "group": "national",
+      "home": "https://www.donga.com",
+      "feeds": [
+        {
+          "url": "https://rss.donga.com/total.xml",
+          "kind": "rss"
+        },
+        {
+          "url": "https://rss.donga.com/politics.xml",
+          "kind": "rss"
+        }
+      ]
+    },
     "dt": {
       "name": "디지털타임스",
       "group": "economic",
@@ -168,7 +191,7 @@
       "home": "https://www.etnews.com",
       "feeds": [
         {
-          "url": "http://rss.etnews.com/Section902.xml",
+          "url": "http://rss.etnews.com/02.xml",
           "kind": "rss"
         }
       ]
@@ -580,6 +603,36 @@
         }
       ]
     },
+    "knnews": {
+      "name": "경남신문",
+      "group": "regional",
+      "home": "https://www.knnews.co.kr",
+      "feeds": [
+        {
+          "url": "https://www.knnews.co.kr/",
+          "kind": "page"
+        },
+        {
+          "url": "https://www.knnews.co.kr/news/articleList.php?sxno=6",
+          "kind": "page"
+        },
+        {
+          "url": "https://www.knnews.co.kr/news/articleList.php?sxno=8",
+          "kind": "page"
+        }
+      ]
+    },
+    "kookje": {
+      "name": "국제신문",
+      "group": "regional",
+      "home": "https://www.kookje.co.kr",
+      "feeds": [
+        {
+          "url": "https://www.kookje.co.kr/",
+          "kind": "page"
+        }
+      ]
+    },
     "ksilbo": {
       "name": "경상일보",
       "group": "regional",
@@ -691,6 +744,25 @@
         }
       ]
     },
+    "mdilbo": {
+      "name": "무등일보",
+      "group": "regional",
+      "home": "https://www.mdilbo.com",
+      "feeds": [
+        {
+          "url": "https://www.mdilbo.com/",
+          "kind": "page"
+        },
+        {
+          "url": "https://www.mdilbo.com/sec/ldGA8d",
+          "kind": "page"
+        },
+        {
+          "url": "https://www.mdilbo.com/sec/jBjKLt",
+          "kind": "page"
+        }
+      ]
+    },
     "mediapen": {
       "name": "미디어펜",
       "group": "internet",
@@ -719,8 +791,8 @@
       "home": "https://www.mediaus.co.kr",
       "feeds": [
         {
-          "url": "https://www.mediaus.co.kr/rss/allArticle.xml",
-          "kind": "rss"
+          "url": "http://www.mediaus.co.kr/sitemap.xml",
+          "kind": "sitemap"
         },
         {
           "url": "https://www.mediaus.co.kr/rss/S1N1.xml",
@@ -751,6 +823,17 @@
         {
           "url": "https://www.mk.co.kr/rss/30000001/",
           "kind": "rss"
+        }
+      ]
+    },
+    "moneys": {
+      "name": "머니S",
+      "group": "economic",
+      "home": "https://www.moneys.co.kr",
+      "feeds": [
+        {
+          "url": "https://www.moneys.co.kr/",
+          "kind": "page"
         }
       ]
     },
@@ -872,6 +955,17 @@
         }
       ]
     },
+    "newstof": {
+      "name": "뉴스톱",
+      "group": "internet",
+      "home": "https://www.newstopkorea.com",
+      "feeds": [
+        {
+          "url": "https://cdn.newstopkorea.com/rss/gn_rss_allArticle.xml",
+          "kind": "rss"
+        }
+      ]
+    },
     "newstomato": {
       "name": "뉴스토마토",
       "group": "economic",
@@ -883,13 +977,24 @@
         }
       ]
     },
+    "newsway": {
+      "name": "뉴스웨이",
+      "group": "economic",
+      "home": "https://www.newsway.co.kr",
+      "feeds": [
+        {
+          "url": "https://www.newsway.co.kr/",
+          "kind": "page"
+        }
+      ]
+    },
     "nocut": {
       "name": "CBS노컷뉴스",
       "group": "broadcast",
       "home": "https://www.nocutnews.co.kr",
       "feeds": [
         {
-          "url": "https://www.nocutnews.co.kr/sitemap.xml",
+          "url": "https://en.nocutnews.co.kr/sitemap.xml",
           "kind": "sitemap"
         }
       ]
@@ -1045,8 +1150,8 @@
       "home": "https://www.sisain.co.kr",
       "feeds": [
         {
-          "url": "http://www.sisain.co.kr/sitemap.xml",
-          "kind": "sitemap"
+          "url": "https://cdn.sisain.co.kr/rss/gns_allArticle.xml",
+          "kind": "rss"
         }
       ]
     },
@@ -1072,6 +1177,17 @@
         }
       ]
     },
+    "skyedaily": {
+      "name": "스카이데일리",
+      "group": "internet",
+      "home": "https://www.skyedaily.com",
+      "feeds": [
+        {
+          "url": "https://www.skyedaily.com/",
+          "kind": "page"
+        }
+      ]
+    },
     "straightnews": {
       "name": "스트레이트뉴스",
       "group": "internet",
@@ -1094,6 +1210,47 @@
         },
         {
           "url": "https://www.tongilnews.com/rss/S1N1.xml",
+          "kind": "rss"
+        }
+      ]
+    },
+    "tvchosun": {
+      "name": "TV조선",
+      "group": "broadcast",
+      "home": "https://news.tvchosun.com",
+      "feeds": [
+        {
+          "url": "https://news.tvchosun.com/",
+          "kind": "page"
+        }
+      ]
+    },
+    "vop": {
+      "name": "민중의소리",
+      "group": "internet",
+      "home": "https://www.vop.co.kr",
+      "feeds": [
+        {
+          "url": "https://www.vop.co.kr/",
+          "kind": "page"
+        },
+        {
+          "url": "https://vop.co.kr/politics",
+          "kind": "page"
+        },
+        {
+          "url": "https://vop.co.kr/society",
+          "kind": "page"
+        }
+      ]
+    },
+    "weeklydonga": {
+      "name": "주간동아",
+      "group": "weekly",
+      "home": "https://weekly.donga.com",
+      "feeds": [
+        {
+          "url": "https://weekly.donga.com/rss",
           "kind": "rss"
         }
       ]
@@ -1179,7 +1336,8 @@
       "https://www.asiae.co.kr/sitemap-news.xml": "robots.txt disallows",
       "https://www.asiae.co.kr/news-sitemap.xml": "robots.txt disallows",
       "https://www.asiae.co.kr/sitemap_news.xml": "robots.txt disallows",
-      "https://www.asiae.co.kr/sitemap/news.xml": "robots.txt disallows"
+      "https://www.asiae.co.kr/sitemap/news.xml": "robots.txt disallows",
+      "https://www.asiae.co.kr/": "robots.txt disallows"
     },
     "breaknews": {
       "https://www.breaknews.com/rss/allArticle.xml": "robots.txt disallows",
@@ -1194,145 +1352,72 @@
       "https://www.breaknews.com/sitemap-news.xml": "robots.txt disallows",
       "https://www.breaknews.com/news-sitemap.xml": "robots.txt disallows",
       "https://www.breaknews.com/sitemap_news.xml": "robots.txt disallows",
-      "https://www.breaknews.com/sitemap/news.xml": "robots.txt disallows"
+      "https://www.breaknews.com/sitemap/news.xml": "robots.txt disallows",
+      "https://www.breaknews.com/": "robots.txt disallows"
     },
-    "busan": {
-      "https://www.busan.com/rss/allArticle.xml": "status 404",
-      "https://www.busan.com/rss/S1N1.xml": "status 404",
-      "https://www.busan.com/rss": "status 404",
-      "https://www.busan.com/rss.xml": "status 404",
-      "https://www.busan.com/rss/rss.xml": "status 404",
-      "https://www.busan.com/feed": "status 404",
-      "https://www.busan.com/feed/": "status 404",
-      "https://www.busan.com/rss/all.xml": "status 404",
-      "https://www.busan.com/rss/total.xml": "status 404",
-      "https://www.busan.com/sitemap-news.xml": "status 404",
-      "https://www.busan.com/news-sitemap.xml": "status 404",
-      "https://www.busan.com/sitemap_news.xml": "status 404",
-      "https://www.busan.com/sitemap/news.xml": "status 404"
+    "businesspost": {
+      "https://www.businesspost.co.kr/rss/allArticle.xml": "robots.txt disallows",
+      "https://www.businesspost.co.kr/rss/S1N1.xml": "robots.txt disallows",
+      "https://www.businesspost.co.kr/rss": "robots.txt disallows",
+      "https://www.businesspost.co.kr/rss.xml": "robots.txt disallows",
+      "https://www.businesspost.co.kr/rss/rss.xml": "robots.txt disallows",
+      "https://www.businesspost.co.kr/feed": "robots.txt disallows",
+      "https://www.businesspost.co.kr/feed/": "robots.txt disallows",
+      "https://www.businesspost.co.kr/rss/all.xml": "robots.txt disallows",
+      "https://www.businesspost.co.kr/rss/total.xml": "robots.txt disallows",
+      "https://www.businesspost.co.kr/sitemap-news.xml": "robots.txt disallows",
+      "https://www.businesspost.co.kr/news-sitemap.xml": "robots.txt disallows",
+      "https://www.businesspost.co.kr/sitemap_news.xml": "robots.txt disallows",
+      "https://www.businesspost.co.kr/sitemap/news.xml": "robots.txt disallows",
+      "https://www.businesspost.co.kr/": "robots.txt disallows"
     },
     "channela": {
-      "https://www.ichannela.com/rss/allArticle.xml": "status 404",
-      "https://www.ichannela.com/rss/S1N1.xml": "http error: ConnectError",
-      "https://www.ichannela.com/rss": "status 404",
-      "https://www.ichannela.com/rss.xml": "http error: ConnectError",
-      "https://www.ichannela.com/rss/rss.xml": "status 404",
-      "https://www.ichannela.com/feed": "status 404",
-      "https://www.ichannela.com/feed/": "status 404",
-      "https://www.ichannela.com/rss/all.xml": "status 404",
-      "https://www.ichannela.com/rss/total.xml": "status 404",
-      "https://www.ichannela.com/sitemap-news.xml": "status 404",
-      "https://www.ichannela.com/news-sitemap.xml": "status 404",
-      "https://www.ichannela.com/sitemap_news.xml": "status 404",
-      "https://www.ichannela.com/sitemap/news.xml": "http error: ConnectError"
-    },
-    "donga": {
-      "https://rss.donga.com/total.xml": "http error: RemoteProtocolError",
-      "https://rss.donga.com/politics.xml": "http error: ReadTimeout",
-      "https://www.donga.com/rss/allArticle.xml": "http error: RemoteProtocolError",
-      "https://www.donga.com/rss/S1N1.xml": "http error: RemoteProtocolError",
-      "https://www.donga.com/rss": "status 404",
-      "https://www.donga.com/rss.xml": "http error: RemoteProtocolError",
-      "https://www.donga.com/rss/rss.xml": "http error: RemoteProtocolError",
-      "https://www.donga.com/feed": "status 404",
-      "https://www.donga.com/feed/": "http error: RemoteProtocolError",
-      "https://www.donga.com/rss/all.xml": "http error: ReadTimeout",
-      "https://www.donga.com/rss/total.xml": "http error: RemoteProtocolError",
-      "https://www.donga.com/sitemap-news.xml": "http error: RemoteProtocolError",
-      "https://www.donga.com/news-sitemap.xml": "http error: RemoteProtocolError",
-      "https://www.donga.com/sitemap_news.xml": "http error: RemoteProtocolError",
-      "https://www.donga.com/sitemap/news.xml": "http error: RemoteProtocolError"
-    },
-    "knnews": {
-      "https://www.knnews.co.kr/rss/allArticle.xml": "status 404",
-      "https://www.knnews.co.kr/rss/S1N1.xml": "status 404",
-      "https://www.knnews.co.kr/rss": "status 403",
-      "https://www.knnews.co.kr/rss.xml": "status 404",
-      "https://www.knnews.co.kr/rss/rss.xml": "status 404",
-      "https://www.knnews.co.kr/feed": "status 404",
-      "https://www.knnews.co.kr/feed/": "status 404",
-      "https://www.knnews.co.kr/rss/all.xml": "status 404",
-      "https://www.knnews.co.kr/rss/total.xml": "status 404",
-      "https://www.knnews.co.kr/sitemap-news.xml": "status 404",
-      "https://www.knnews.co.kr/news-sitemap.xml": "status 404",
-      "https://www.knnews.co.kr/sitemap_news.xml": "status 404",
-      "https://www.knnews.co.kr/sitemap/news.xml": "status 404"
-    },
-    "kookje": {
-      "http://www.kookje.co.kr/sitemap.xml": "sitemap without news titles",
-      "https://www.kookje.co.kr/rss/allArticle.xml": "no entries",
-      "https://www.kookje.co.kr/rss/S1N1.xml": "no entries",
-      "https://www.kookje.co.kr/rss": "no entries",
-      "https://www.kookje.co.kr/rss.xml": "no entries",
-      "https://www.kookje.co.kr/rss/rss.xml": "no entries",
-      "https://www.kookje.co.kr/feed": "no entries",
-      "https://www.kookje.co.kr/feed/": "no entries",
-      "https://www.kookje.co.kr/rss/all.xml": "no entries",
-      "https://www.kookje.co.kr/rss/total.xml": "no entries",
-      "https://www.kookje.co.kr/sitemap-news.xml": "no entries",
-      "https://www.kookje.co.kr/news-sitemap.xml": "no entries",
-      "https://www.kookje.co.kr/sitemap_news.xml": "no entries",
-      "https://www.kookje.co.kr/sitemap/news.xml": "no entries"
+      "https://www.ichannela.com/rss/allArticle.xml": "robots.txt disallows",
+      "https://www.ichannela.com/rss/S1N1.xml": "robots.txt disallows",
+      "https://www.ichannela.com/rss": "robots.txt disallows",
+      "https://www.ichannela.com/rss.xml": "robots.txt disallows",
+      "https://www.ichannela.com/rss/rss.xml": "robots.txt disallows",
+      "https://www.ichannela.com/feed": "robots.txt disallows",
+      "https://www.ichannela.com/feed/": "robots.txt disallows",
+      "https://www.ichannela.com/rss/all.xml": "robots.txt disallows",
+      "https://www.ichannela.com/rss/total.xml": "robots.txt disallows",
+      "https://www.ichannela.com/sitemap-news.xml": "robots.txt disallows",
+      "https://www.ichannela.com/news-sitemap.xml": "robots.txt disallows",
+      "https://www.ichannela.com/sitemap_news.xml": "robots.txt disallows",
+      "https://www.ichannela.com/sitemap/news.xml": "robots.txt disallows",
+      "https://www.ichannela.com/": "robots.txt disallows"
     },
     "kwangju": {
-      "https://www.kwangju.co.kr/rss/allArticle.xml": "http error: ConnectTimeout",
-      "https://www.kwangju.co.kr/rss/S1N1.xml": "http error: ConnectError",
-      "https://www.kwangju.co.kr/rss": "http error: ConnectError",
-      "https://www.kwangju.co.kr/rss.xml": "http error: ConnectError",
-      "https://www.kwangju.co.kr/rss/rss.xml": "http error: ConnectTimeout",
-      "https://www.kwangju.co.kr/feed": "http error: ConnectTimeout",
-      "https://www.kwangju.co.kr/feed/": "http error: ConnectTimeout",
-      "https://www.kwangju.co.kr/rss/all.xml": "http error: ConnectTimeout",
-      "https://www.kwangju.co.kr/rss/total.xml": "http error: ConnectError",
-      "https://www.kwangju.co.kr/sitemap-news.xml": "http error: ConnectError",
-      "https://www.kwangju.co.kr/news-sitemap.xml": "http error: ConnectError",
-      "https://www.kwangju.co.kr/sitemap_news.xml": "http error: ConnectError",
-      "https://www.kwangju.co.kr/sitemap/news.xml": "http error: ConnectError"
+      "https://www.kwangju.co.kr/rss/allArticle.xml": "robots.txt disallows",
+      "https://www.kwangju.co.kr/rss/S1N1.xml": "robots.txt disallows",
+      "https://www.kwangju.co.kr/rss": "robots.txt disallows",
+      "https://www.kwangju.co.kr/rss.xml": "robots.txt disallows",
+      "https://www.kwangju.co.kr/rss/rss.xml": "robots.txt disallows",
+      "https://www.kwangju.co.kr/feed": "robots.txt disallows",
+      "https://www.kwangju.co.kr/feed/": "robots.txt disallows",
+      "https://www.kwangju.co.kr/rss/all.xml": "robots.txt disallows",
+      "https://www.kwangju.co.kr/rss/total.xml": "robots.txt disallows",
+      "https://www.kwangju.co.kr/sitemap-news.xml": "robots.txt disallows",
+      "https://www.kwangju.co.kr/news-sitemap.xml": "robots.txt disallows",
+      "https://www.kwangju.co.kr/sitemap_news.xml": "robots.txt disallows",
+      "https://www.kwangju.co.kr/sitemap/news.xml": "robots.txt disallows",
+      "https://www.kwangju.co.kr/": "robots.txt disallows"
     },
     "mbc": {
-      "https://imnews.imbc.com/rss/allArticle.xml": "no entries",
-      "https://imnews.imbc.com/rss/S1N1.xml": "no entries",
-      "https://imnews.imbc.com/rss": "no entries",
-      "https://imnews.imbc.com/rss.xml": "no entries",
-      "https://imnews.imbc.com/rss/rss.xml": "no entries",
-      "https://imnews.imbc.com/feed": "no entries",
-      "https://imnews.imbc.com/feed/": "no entries",
-      "https://imnews.imbc.com/rss/all.xml": "no entries",
-      "https://imnews.imbc.com/rss/total.xml": "no entries",
-      "https://imnews.imbc.com/sitemap-news.xml": "no entries",
-      "https://imnews.imbc.com/news-sitemap.xml": "no entries",
-      "https://imnews.imbc.com/sitemap_news.xml": "no entries",
-      "https://imnews.imbc.com/sitemap/news.xml": "no entries"
-    },
-    "mdilbo": {
-      "https://www.mdilbo.com/rss/allArticle.xml": "status 404",
-      "https://www.mdilbo.com/rss/S1N1.xml": "status 404",
-      "https://www.mdilbo.com/rss": "status 404",
-      "https://www.mdilbo.com/rss.xml": "status 404",
-      "https://www.mdilbo.com/rss/rss.xml": "status 404",
-      "https://www.mdilbo.com/feed": "status 404",
-      "https://www.mdilbo.com/feed/": "status 404",
-      "https://www.mdilbo.com/rss/all.xml": "status 404",
-      "https://www.mdilbo.com/rss/total.xml": "status 404",
-      "https://www.mdilbo.com/sitemap-news.xml": "status 404",
-      "https://www.mdilbo.com/news-sitemap.xml": "status 404",
-      "https://www.mdilbo.com/sitemap_news.xml": "status 404",
-      "https://www.mdilbo.com/sitemap/news.xml": "status 404"
-    },
-    "moneys": {
-      "https://www.moneys.co.kr/rss/allArticle.xml": "status 404",
-      "https://www.moneys.co.kr/rss/S1N1.xml": "status 404",
-      "https://www.moneys.co.kr/rss": "status 403",
-      "https://www.moneys.co.kr/rss.xml": "status 410",
-      "https://www.moneys.co.kr/rss/rss.xml": "status 404",
-      "https://www.moneys.co.kr/feed": "status 410",
-      "https://www.moneys.co.kr/feed/": "status 410",
-      "https://www.moneys.co.kr/rss/all.xml": "status 404",
-      "https://www.moneys.co.kr/rss/total.xml": "status 404",
-      "https://www.moneys.co.kr/sitemap-news.xml": "status 410",
-      "https://www.moneys.co.kr/news-sitemap.xml": "status 410",
-      "https://www.moneys.co.kr/sitemap_news.xml": "status 410",
-      "https://www.moneys.co.kr/sitemap/news.xml": "status 410"
+      "https://imnews.imbc.com/rss/allArticle.xml": "robots.txt disallows",
+      "https://imnews.imbc.com/rss/S1N1.xml": "robots.txt disallows",
+      "https://imnews.imbc.com/rss": "robots.txt disallows",
+      "https://imnews.imbc.com/rss.xml": "robots.txt disallows",
+      "https://imnews.imbc.com/rss/rss.xml": "robots.txt disallows",
+      "https://imnews.imbc.com/feed": "robots.txt disallows",
+      "https://imnews.imbc.com/feed/": "robots.txt disallows",
+      "https://imnews.imbc.com/rss/all.xml": "robots.txt disallows",
+      "https://imnews.imbc.com/rss/total.xml": "robots.txt disallows",
+      "https://imnews.imbc.com/sitemap-news.xml": "robots.txt disallows",
+      "https://imnews.imbc.com/news-sitemap.xml": "robots.txt disallows",
+      "https://imnews.imbc.com/sitemap_news.xml": "robots.txt disallows",
+      "https://imnews.imbc.com/sitemap/news.xml": "robots.txt disallows",
+      "https://imnews.imbc.com/": "robots.txt disallows"
     },
     "naeil": {
       "https://www.naeil.com/rss/allArticle.xml": "robots.txt disallows",
@@ -1347,7 +1432,8 @@
       "https://www.naeil.com/sitemap-news.xml": "robots.txt disallows",
       "https://www.naeil.com/news-sitemap.xml": "robots.txt disallows",
       "https://www.naeil.com/sitemap_news.xml": "robots.txt disallows",
-      "https://www.naeil.com/sitemap/news.xml": "robots.txt disallows"
+      "https://www.naeil.com/sitemap/news.xml": "robots.txt disallows",
+      "https://www.naeil.com/": "robots.txt disallows"
     },
     "news2day": {
       "https://www.news2day.co.kr/rss/allArticle.xml": "robots.txt disallows",
@@ -1362,39 +1448,8 @@
       "https://www.news2day.co.kr/sitemap-news.xml": "robots.txt disallows",
       "https://www.news2day.co.kr/news-sitemap.xml": "robots.txt disallows",
       "https://www.news2day.co.kr/sitemap_news.xml": "robots.txt disallows",
-      "https://www.news2day.co.kr/sitemap/news.xml": "robots.txt disallows"
-    },
-    "newstof": {
-      "https://cdn.newstopkorea.com/rss/gn_rss_allArticle.xml": "links mostly point to other sites",
-      "https://www.newstopkorea.com/sitemap.xml": "links mostly point to other sites",
-      "https://www.newstof.com/rss/allArticle.xml": "links mostly point to other sites",
-      "https://www.newstof.com/rss/S1N1.xml": "status 404",
-      "https://www.newstof.com/rss": "status 403",
-      "https://www.newstof.com/rss.xml": "status 404",
-      "https://www.newstof.com/rss/rss.xml": "status 404",
-      "https://www.newstof.com/feed": "status 404",
-      "https://www.newstof.com/feed/": "status 404",
-      "https://www.newstof.com/rss/all.xml": "status 404",
-      "https://www.newstof.com/rss/total.xml": "status 404",
-      "https://www.newstof.com/sitemap-news.xml": "status 404",
-      "https://www.newstof.com/news-sitemap.xml": "status 404",
-      "https://www.newstof.com/sitemap_news.xml": "status 404",
-      "https://www.newstof.com/sitemap/news.xml": "status 404"
-    },
-    "newsway": {
-      "https://www.newsway.co.kr/rss/allArticle.xml": "status 404",
-      "https://www.newsway.co.kr/rss/S1N1.xml": "status 404",
-      "https://www.newsway.co.kr/rss": "status 404",
-      "https://www.newsway.co.kr/rss.xml": "status 404",
-      "https://www.newsway.co.kr/rss/rss.xml": "status 404",
-      "https://www.newsway.co.kr/feed": "status 404",
-      "https://www.newsway.co.kr/feed/": "status 404",
-      "https://www.newsway.co.kr/rss/all.xml": "status 404",
-      "https://www.newsway.co.kr/rss/total.xml": "status 404",
-      "https://www.newsway.co.kr/sitemap-news.xml": "status 404",
-      "https://www.newsway.co.kr/news-sitemap.xml": "status 404",
-      "https://www.newsway.co.kr/sitemap_news.xml": "status 404",
-      "https://www.newsway.co.kr/sitemap/news.xml": "status 404"
+      "https://www.news2day.co.kr/sitemap/news.xml": "robots.txt disallows",
+      "https://www.news2day.co.kr/": "robots.txt disallows"
     },
     "nongmin": {
       "https://www.nongmin.com/sitemap.xml": "robots.txt disallows",
@@ -1410,22 +1465,8 @@
       "https://www.nongmin.com/sitemap-news.xml": "robots.txt disallows",
       "https://www.nongmin.com/news-sitemap.xml": "robots.txt disallows",
       "https://www.nongmin.com/sitemap_news.xml": "robots.txt disallows",
-      "https://www.nongmin.com/sitemap/news.xml": "robots.txt disallows"
-    },
-    "skyedaily": {
-      "https://www.skyedaily.com/rss/allArticle.xml": "status 404",
-      "https://www.skyedaily.com/rss/S1N1.xml": "status 404",
-      "https://www.skyedaily.com/rss": "status 404",
-      "https://www.skyedaily.com/rss.xml": "status 404",
-      "https://www.skyedaily.com/rss/rss.xml": "status 404",
-      "https://www.skyedaily.com/feed": "status 404",
-      "https://www.skyedaily.com/feed/": "status 404",
-      "https://www.skyedaily.com/rss/all.xml": "no entries",
-      "https://www.skyedaily.com/rss/total.xml": "no entries",
-      "https://www.skyedaily.com/sitemap-news.xml": "status 404",
-      "https://www.skyedaily.com/news-sitemap.xml": "status 404",
-      "https://www.skyedaily.com/sitemap_news.xml": "status 404",
-      "https://www.skyedaily.com/sitemap/news.xml": "status 404"
+      "https://www.nongmin.com/sitemap/news.xml": "robots.txt disallows",
+      "https://www.nongmin.com/": "robots.txt disallows"
     },
     "thefact": {
       "https://news.tf.co.kr/rss/allArticle.xml": "status 404",
@@ -1440,67 +1481,8 @@
       "https://news.tf.co.kr/sitemap-news.xml": "status 404",
       "https://news.tf.co.kr/news-sitemap.xml": "status 404",
       "https://news.tf.co.kr/sitemap_news.xml": "status 404",
-      "https://news.tf.co.kr/sitemap/news.xml": "status 404"
-    },
-    "tvchosun": {
-      "https://news.tvchosun.com/rss/allArticle.xml": "no entries",
-      "https://news.tvchosun.com/rss/S1N1.xml": "no entries",
-      "https://news.tvchosun.com/rss": "no entries",
-      "https://news.tvchosun.com/rss.xml": "no entries",
-      "https://news.tvchosun.com/rss/rss.xml": "no entries",
-      "https://news.tvchosun.com/feed": "no entries",
-      "https://news.tvchosun.com/feed/": "no entries",
-      "https://news.tvchosun.com/rss/all.xml": "no entries",
-      "https://news.tvchosun.com/rss/total.xml": "no entries",
-      "https://news.tvchosun.com/sitemap-news.xml": "no entries",
-      "https://news.tvchosun.com/news-sitemap.xml": "no entries",
-      "https://news.tvchosun.com/sitemap_news.xml": "no entries",
-      "https://news.tvchosun.com/sitemap/news.xml": "no entries"
-    },
-    "upinews": {
-      "https://www.upinews.kr/rss/allArticle.xml": "http error: ProxyError",
-      "https://www.upinews.kr/rss/S1N1.xml": "http error: ProxyError",
-      "https://www.upinews.kr/rss": "http error: ProxyError",
-      "https://www.upinews.kr/rss.xml": "http error: ProxyError",
-      "https://www.upinews.kr/rss/rss.xml": "http error: ProxyError",
-      "https://www.upinews.kr/feed": "http error: ProxyError",
-      "https://www.upinews.kr/feed/": "http error: ProxyError",
-      "https://www.upinews.kr/rss/all.xml": "http error: ProxyError",
-      "https://www.upinews.kr/rss/total.xml": "http error: ProxyError",
-      "https://www.upinews.kr/sitemap-news.xml": "http error: ProxyError",
-      "https://www.upinews.kr/news-sitemap.xml": "http error: ProxyError",
-      "https://www.upinews.kr/sitemap_news.xml": "http error: ProxyError",
-      "https://www.upinews.kr/sitemap/news.xml": "http error: ProxyError"
-    },
-    "vop": {
-      "https://www.vop.co.kr/rss/allArticle.xml": "http error: ConnectError",
-      "https://www.vop.co.kr/rss/S1N1.xml": "http error: ConnectError",
-      "https://www.vop.co.kr/rss": "http error: ConnectError",
-      "https://www.vop.co.kr/rss.xml": "http error: ConnectError",
-      "https://www.vop.co.kr/rss/rss.xml": "http error: ConnectError",
-      "https://www.vop.co.kr/feed": "http error: ConnectError",
-      "https://www.vop.co.kr/feed/": "http error: ConnectError",
-      "https://www.vop.co.kr/rss/all.xml": "http error: ConnectError",
-      "https://www.vop.co.kr/rss/total.xml": "http error: ConnectError",
-      "https://www.vop.co.kr/sitemap-news.xml": "http error: ConnectError",
-      "https://www.vop.co.kr/news-sitemap.xml": "http error: ConnectError",
-      "https://www.vop.co.kr/sitemap_news.xml": "http error: ConnectError",
-      "https://www.vop.co.kr/sitemap/news.xml": "http error: ConnectError"
-    },
-    "weeklydonga": {
-      "https://weekly.donga.com/rss/allArticle.xml": "status 404",
-      "https://weekly.donga.com/rss/S1N1.xml": "http error: ReadTimeout",
-      "https://weekly.donga.com/rss": "http error: ReadTimeout",
-      "https://weekly.donga.com/rss.xml": "status 404",
-      "https://weekly.donga.com/rss/rss.xml": "status 404",
-      "https://weekly.donga.com/feed": "status 404",
-      "https://weekly.donga.com/feed/": "http error: RemoteProtocolError",
-      "https://weekly.donga.com/rss/all.xml": "status 404",
-      "https://weekly.donga.com/rss/total.xml": "http error: RemoteProtocolError",
-      "https://weekly.donga.com/sitemap-news.xml": "http error: ReadTimeout",
-      "https://weekly.donga.com/news-sitemap.xml": "http error: RemoteProtocolError",
-      "https://weekly.donga.com/sitemap_news.xml": "http error: RemoteProtocolError",
-      "https://weekly.donga.com/sitemap/news.xml": "http error: RemoteProtocolError"
+      "https://news.tf.co.kr/sitemap/news.xml": "status 404",
+      "https://news.tf.co.kr/": "only 0 headline links"
     },
     "yeongnam": {
       "https://www.yeongnam.com/rss/allArticle.xml": "no entries",
@@ -1515,8 +1497,9 @@
       "https://www.yeongnam.com/sitemap-news.xml": "no entries",
       "https://www.yeongnam.com/news-sitemap.xml": "no entries",
       "https://www.yeongnam.com/sitemap_news.xml": "no entries",
-      "https://www.yeongnam.com/sitemap/news.xml": "no entries"
+      "https://www.yeongnam.com/sitemap/news.xml": "no entries",
+      "https://www.yeongnam.com/": "only 0 headline links"
     }
   },
-  "generated_at": "2026-10-17T13:04:29+00:00"
+  "generated_at": "2026-10-18T00:33:22+00:00"
 }
