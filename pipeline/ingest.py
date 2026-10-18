@@ -145,8 +145,14 @@ def outlet_rows(lock: dict) -> list[tuple]:
             access = "relay" if lock["outlets"][oid].get("via") == "relay" else "ok"
             home = lock["outlets"][oid]["home"]
         else:
-            # 수집거부 only when discovery found robots.txt refusing the homepage itself.
-            access = "refused" if oid in lock.get("refused", []) else "unavailable"
+            # 수집거부 only when discovery found robots.txt refusing the homepage itself;
+            # 접속차단 when the server turns the crawler away before robots.txt (HTTP 403).
+            if oid in lock.get("refused", []):
+                access = "refused"
+            elif oid in lock.get("blocked", []):
+                access = "blocked"
+            else:
+                access = "unavailable"
             home = o["home"]
         rows.append((oid, o["name"], o["group"], home, access))
     return rows

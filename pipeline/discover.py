@@ -209,7 +209,7 @@ def resolve(outlet: dict, via_relay: bool = False) -> dict:
     return result
 
 
-NETWORK_FAILURE = ("robots.txt unreachable", "http error", "error:", "relay ")
+NETWORK_FAILURE = ("robots.txt unreachable", "robots.txt blocked", "http error", "error:", "relay ")
 
 
 def only_network_failures(tried: dict[str, str]) -> bool:
@@ -275,6 +275,16 @@ def main(argv: list[str] | None = None) -> int:
         if oid in homes and http.refusal(homes[oid]) == "robots.txt disallows"
     }
     lock["refused"] = sorted(refused)
+    # 접속차단: the server turns our crawler away (HTTP 401/403 on robots.txt) both from
+    # GitHub's runners and from the Seoul relay. Not an opt-out, but no route in either.
+    lock["blocked"] = sorted(
+        oid
+        for oid in lock["failing"]
+        if oid in homes
+        and oid not in refused
+        and http.refusal(homes[oid]) == "robots.txt blocked"
+        and (not relay.available() or http.refusal(homes[oid], True).startswith("robots.txt"))
+    )
     lock["generated_at"] = datetime.now(UTC).isoformat(timespec="seconds")
     lock["outlets"] = dict(sorted(lock["outlets"].items()))
     lock["failing"] = dict(sorted(lock["failing"].items()))

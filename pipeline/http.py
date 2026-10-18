@@ -119,7 +119,7 @@ def _robots_for(origin: str, via_relay: bool = False) -> Robots | None:
     if r is None or r.status_code >= 500:
         return Robots.deny_all(unreachable=True)
     if r.status_code in (401, 403):
-        return Robots.deny_all(unreachable=True)
+        return Robots.deny_all(blocked=True)
     if r.status_code >= 400:
         return None
     return Robots.parse(r.text)
@@ -140,6 +140,8 @@ def refusal(url: str, via_relay: bool = False) -> str:
     rp = _robots_for(f"{parts.scheme}://{parts.netloc}", via_relay)
     if rp is None or rp.can_fetch(PRODUCT_TOKEN, url):
         return ""
+    if rp.blocked:
+        return "robots.txt blocked"
     return "robots.txt unreachable" if rp.unreachable else "robots.txt disallows"
 
 

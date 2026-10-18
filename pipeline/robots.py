@@ -45,10 +45,11 @@ class Robots:
     sitemaps: list[str] = field(default_factory=list)
     disallow_all: bool = False
     unreachable: bool = False  # robots.txt could not be read: treated as a refusal
+    blocked: bool = False  # the server answered 401/403: it turns this crawler away
 
     @classmethod
-    def deny_all(cls, unreachable: bool = False) -> Robots:
-        return cls(disallow_all=True, unreachable=unreachable)
+    def deny_all(cls, unreachable: bool = False, blocked: bool = False) -> Robots:
+        return cls(disallow_all=True, unreachable=unreachable or blocked, blocked=blocked)
 
     @classmethod
     def parse(cls, text: str) -> Robots:

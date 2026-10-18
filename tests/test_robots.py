@@ -77,3 +77,9 @@ def test_unreachable_is_marked_separately_from_refusal():
     r = Robots.deny_all(unreachable=True)
     assert r.unreachable and not r.can_fetch(BOT, "https://e.com/")
     assert not Robots.deny_all().unreachable
+
+
+def test_blocked_is_unreachable_but_marked():
+    rb = Robots.deny_all(blocked=True)
+    assert rb.blocked and rb.unreachable
+    assert not rb.can_fetch(BOT, "https://e.com/")
