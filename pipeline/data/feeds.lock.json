@@ -191,8 +191,12 @@
       "home": "https://www.etnews.com",
       "feeds": [
         {
-          "url": "http://rss.etnews.com/02.xml",
-          "kind": "rss"
+          "url": "https://www.etnews.com/",
+          "kind": "page"
+        },
+        {
+          "url": "https://www.etnews.com/news/section.html?id1=25",
+          "kind": "page"
         }
       ]
     },
@@ -1372,36 +1376,37 @@
       "https://www.businesspost.co.kr/": "robots.txt disallows"
     },
     "channela": {
-      "https://www.ichannela.com/rss/allArticle.xml": "robots.txt disallows",
-      "https://www.ichannela.com/rss/S1N1.xml": "robots.txt disallows",
-      "https://www.ichannela.com/rss": "robots.txt disallows",
-      "https://www.ichannela.com/rss.xml": "robots.txt disallows",
-      "https://www.ichannela.com/rss/rss.xml": "robots.txt disallows",
-      "https://www.ichannela.com/feed": "robots.txt disallows",
-      "https://www.ichannela.com/feed/": "robots.txt disallows",
-      "https://www.ichannela.com/rss/all.xml": "robots.txt disallows",
-      "https://www.ichannela.com/rss/total.xml": "robots.txt disallows",
-      "https://www.ichannela.com/sitemap-news.xml": "robots.txt disallows",
-      "https://www.ichannela.com/news-sitemap.xml": "robots.txt disallows",
-      "https://www.ichannela.com/sitemap_news.xml": "robots.txt disallows",
-      "https://www.ichannela.com/sitemap/news.xml": "robots.txt disallows",
-      "https://www.ichannela.com/": "robots.txt disallows"
+      "https://ichannela.com/sitemap/news-sitemap.do": "robots.txt unreachable",
+      "https://ichannela.com/rss/allArticle.xml": "robots.txt unreachable",
+      "https://ichannela.com/rss/S1N1.xml": "robots.txt unreachable",
+      "https://ichannela.com/rss": "robots.txt unreachable",
+      "https://ichannela.com/rss.xml": "robots.txt unreachable",
+      "https://ichannela.com/rss/rss.xml": "robots.txt unreachable",
+      "https://ichannela.com/feed": "robots.txt unreachable",
+      "https://ichannela.com/feed/": "robots.txt unreachable",
+      "https://ichannela.com/rss/all.xml": "robots.txt unreachable",
+      "https://ichannela.com/rss/total.xml": "robots.txt unreachable",
+      "https://ichannela.com/sitemap-news.xml": "robots.txt unreachable",
+      "https://ichannela.com/news-sitemap.xml": "robots.txt unreachable",
+      "https://ichannela.com/sitemap_news.xml": "robots.txt unreachable",
+      "https://ichannela.com/sitemap/news.xml": "robots.txt unreachable",
+      "https://ichannela.com/": "robots.txt unreachable"
     },
     "kwangju": {
-      "https://www.kwangju.co.kr/rss/allArticle.xml": "robots.txt disallows",
-      "https://www.kwangju.co.kr/rss/S1N1.xml": "robots.txt disallows",
-      "https://www.kwangju.co.kr/rss": "robots.txt disallows",
-      "https://www.kwangju.co.kr/rss.xml": "robots.txt disallows",
-      "https://www.kwangju.co.kr/rss/rss.xml": "robots.txt disallows",
-      "https://www.kwangju.co.kr/feed": "robots.txt disallows",
-      "https://www.kwangju.co.kr/feed/": "robots.txt disallows",
-      "https://www.kwangju.co.kr/rss/all.xml": "robots.txt disallows",
-      "https://www.kwangju.co.kr/rss/total.xml": "robots.txt disallows",
-      "https://www.kwangju.co.kr/sitemap-news.xml": "robots.txt disallows",
-      "https://www.kwangju.co.kr/news-sitemap.xml": "robots.txt disallows",
-      "https://www.kwangju.co.kr/sitemap_news.xml": "robots.txt disallows",
-      "https://www.kwangju.co.kr/sitemap/news.xml": "robots.txt disallows",
-      "https://www.kwangju.co.kr/": "robots.txt disallows"
+      "https://www.kwangju.co.kr/rss/allArticle.xml": "robots.txt unreachable",
+      "https://www.kwangju.co.kr/rss/S1N1.xml": "robots.txt unreachable",
+      "https://www.kwangju.co.kr/rss": "robots.txt unreachable",
+      "https://www.kwangju.co.kr/rss.xml": "robots.txt unreachable",
+      "https://www.kwangju.co.kr/rss/rss.xml": "robots.txt unreachable",
+      "https://www.kwangju.co.kr/feed": "robots.txt unreachable",
+      "https://www.kwangju.co.kr/feed/": "robots.txt unreachable",
+      "https://www.kwangju.co.kr/rss/all.xml": "robots.txt unreachable",
+      "https://www.kwangju.co.kr/rss/total.xml": "robots.txt unreachable",
+      "https://www.kwangju.co.kr/sitemap-news.xml": "robots.txt unreachable",
+      "https://www.kwangju.co.kr/news-sitemap.xml": "robots.txt unreachable",
+      "https://www.kwangju.co.kr/sitemap_news.xml": "robots.txt unreachable",
+      "https://www.kwangju.co.kr/sitemap/news.xml": "robots.txt unreachable",
+      "https://www.kwangju.co.kr/": "robots.txt unreachable"
     },
     "mbc": {
       "https://imnews.imbc.com/rss/allArticle.xml": "robots.txt disallows",
@@ -1501,5 +1506,5 @@
       "https://www.yeongnam.com/": "only 0 headline links"
     }
   },
-  "generated_at": "2026-10-18T00:33:22+00:00"
+  "generated_at": "2026-10-18T00:49:17+00:00"
 }
