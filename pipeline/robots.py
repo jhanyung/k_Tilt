@@ -44,10 +44,11 @@ class Robots:
     groups: list[tuple[list[str], list[Rule]]] = field(default_factory=list)
     sitemaps: list[str] = field(default_factory=list)
     disallow_all: bool = False
+    unreachable: bool = False  # robots.txt could not be read: treated as a refusal
 
     @classmethod
-    def deny_all(cls) -> Robots:
-        return cls(disallow_all=True)
+    def deny_all(cls, unreachable: bool = False) -> Robots:
+        return cls(disallow_all=True, unreachable=unreachable)
 
     @classmethod
     def parse(cls, text: str) -> Robots:

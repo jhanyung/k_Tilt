@@ -211,8 +211,9 @@ def parse_sitemap(content: bytes) -> tuple[str, list]:
 
 
 def _get(url: str, c: httpx.Client) -> tuple[bytes | None, str]:
-    if not http.allowed(url):
-        return None, "robots.txt disallows"
+    why = http.refusal(url)
+    if why:
+        return None, why
     body, reason = _get_once(url, c)
     if body is None and reason.startswith("http error"):  # one retry for network blips
         time.sleep(2)

@@ -71,3 +71,9 @@ def test_mediatoday_rss_dir_blocked_but_sitemap_allowed():
 def test_robots_txt_itself_always_allowed_and_deny_all():
     assert Robots.parse("User-agent: *\nDisallow: /\n").can_fetch(BOT, "https://e.com/robots.txt")
     assert not Robots.deny_all().can_fetch(BOT, "https://e.com/")
+
+
+def test_unreachable_is_marked_separately_from_refusal():
+    r = Robots.deny_all(unreachable=True)
+    assert r.unreachable and not r.can_fetch(BOT, "https://e.com/")
+    assert not Robots.deny_all().unreachable

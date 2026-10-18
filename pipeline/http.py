@@ -4,6 +4,7 @@ for servers that still use legacy TLS settings."""
 from __future__ import annotations
 
 import ssl
+import time
 from functools import lru_cache
 from urllib.parse import urljoin, urlsplit
 
@@ -88,12 +89,18 @@ def _robots_for(origin: str) -> Robots | None:
     401/403 and server errors are treated as "disallow everything", which is stricter
     than RFC 9309 requires for 4xx, so that an unreadable file never becomes a yes.
     """
-    try:
-        with client() as c:
-            r = get(c, f"{origin}/robots.txt")
-    except (httpx.HTTPError, ValueError):
-        return Robots.deny_all()
-    if r.status_code in (401, 403) or r.status_code >= 500:
+    r = None
+    for attempt in range(2):
+        try:
+            with client() as c:
+                r = get(c, f"{origin}/robots.txt")
+            break
+        except (httpx.HTTPError, ValueError):
+            if attempt == 0:
+                time.sleep(3)
+    if r is None or r.status_code >= 500:
+        return Robots.deny_all(unreachable=True)
+    if r.status_code in (401, 403):
         return Robots.deny_all()
     if r.status_code >= 400:
         return None
@@ -109,7 +116,14 @@ def sitemaps(url: str) -> list[str]:
     return [urljoin(origin + "/", u) for u in rp.sitemaps] if rp else []
 
 
-def allowed(url: str) -> bool:
+def refusal(url: str) -> str:
+    """Empty if we may fetch url; otherwise why not."""
     parts = urlsplit(url)
     rp = _robots_for(f"{parts.scheme}://{parts.netloc}")
-    return True if rp is None else rp.can_fetch(PRODUCT_TOKEN, url)
+    if rp is None or rp.can_fetch(PRODUCT_TOKEN, url):
+        return ""
+    return "robots.txt unreachable" if rp.unreachable else "robots.txt disallows"
+
+
+def allowed(url: str) -> bool:
+    return not refusal(url)

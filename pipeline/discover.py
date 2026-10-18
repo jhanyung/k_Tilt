@@ -232,7 +232,7 @@ def main(argv: list[str] | None = None) -> int:
     if args.keep_existing:
         for r in list(failing):
             old = previous["outlets"].get(r["id"])
-            refused = any("robots.txt" in reason for reason in r["tried"].values())
+            refused = any("robots.txt disallows" in reason for reason in r["tried"].values())
             if old and not refused:  # forgive network failures, never a refusal
                 lock["outlets"][r["id"]] = old
                 failing.remove(r)

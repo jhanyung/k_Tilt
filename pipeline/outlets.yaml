@@ -77,7 +77,8 @@ outlets:
   - {id: ytn, name: YTN, home: https://www.ytn.co.kr, group: broadcast}
   - {id: mbn, name: MBN, home: https://www.mbn.co.kr, group: broadcast}
   - {id: tvchosun, name: TV조선, home: https://news.tvchosun.com, group: broadcast}
-  - {id: channela, name: 채널A, home: https://www.ichannela.com, group: broadcast}
+  - {id: channela, name: 채널A, home: https://ichannela.com, group: broadcast,
+     feeds: ["https://ichannela.com/sitemap/news-sitemap.do"]}
   - {id: yonhapnewstv, name: 연합뉴스TV, home: https://www.yonhapnewstv.co.kr, group: broadcast,
      feeds: ["https://www.yonhapnewstv.co.kr/browse/feed/"]}
   - {id: nocut, name: CBS노컷뉴스, home: https://www.nocutnews.co.kr, group: broadcast}
