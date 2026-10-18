@@ -1,8 +1,9 @@
 """Find working RSS feeds for every outlet and write pipeline/data/feeds.lock.json.
 
 Order of candidates: registry hints, feeds advertised on the homepage or an RSS page,
-Google News sitemaps declared in robots.txt, then common CMS paths. Up to two sources are
-kept per outlet: a general one and, if found, a politics feed.
+Google News sitemaps declared in robots.txt, common CMS paths, and finally the outlet's own
+listing pages (homepage plus politics and society sections). Up to two feeds are kept per
+outlet (general + politics), or up to three listing pages.
 
 Usage: python -m pipeline.discover [--only id1,id2] [--keep-existing]
 
@@ -125,18 +126,43 @@ def robots_news_sitemaps(home: str) -> list[str]:
     return urls[:6]
 
 
+SECTION_WORDS = ("정치", "사회", "전국")
+
+
+def listing_pages(home: str, c: httpx.Client) -> list[str]:
+    """The homepage plus its politics and society section pages, in that order."""
+    pages = [home + "/"]
+    r = _get_html(home + "/", c)
+    if r is None:
+        return pages
+    parser = feeds._LinkText()
+    try:
+        parser.feed(r.text)
+    except Exception:
+        return pages
+    site = feeds.registered_domain(home)
+    for word in SECTION_WORDS:
+        for href, text in parser.links:
+            if text.strip() == word and href:
+                u = urljoin(str(r.url), href)
+                if u.startswith("http") and feeds.registered_domain(u) == site:
+                    pages.append(u)
+                    break
+    return list(dict.fromkeys(pages))[:3]
+
+
 def resolve(outlet: dict) -> dict:
     home = outlet["home"].rstrip("/")
     tried: dict[str, str] = {}
     good: list[feeds.FeedCheck] = []
     with http.client() as c:
 
-        def attempt(urls: list[str]) -> None:
+        def attempt(urls: list[str], kind_hint: str = "") -> None:
             for u in urls:
                 if u in tried or len(good) >= 4:
                     continue
                 try:
-                    chk = feeds.check(u, home, c)
+                    chk = feeds.check(u, home, c, kind_hint=kind_hint)
                 except Exception as e:  # one bad URL must never stop the run
                     tried[u] = f"error: {type(e).__name__}"
                     continue
@@ -154,8 +180,14 @@ def resolve(outlet: dict) -> dict:
         elif not any(POLITICS.search(g.url + g.title) for g in good):
             # We have a general feed; look once for a politics section feed.
             attempt([home + "/rss/S1N1.xml"])
+        if not good:
+            attempt(listing_pages(home, c), kind_hint="page")
 
     chosen: list[feeds.FeedCheck] = []
+    pages = [g for g in good if g.kind == "page"]
+    if pages:
+        good = []
+        chosen = pages[:3]
     general = [g for g in good if not POLITICS.search(g.url + g.title)]
     politics = [g for g in good if POLITICS.search(g.url + g.title)]
     if general:
@@ -200,7 +232,8 @@ def main(argv: list[str] | None = None) -> int:
     if args.keep_existing:
         for r in list(failing):
             old = previous["outlets"].get(r["id"])
-            if old:
+            refused = any("robots.txt" in reason for reason in r["tried"].values())
+            if old and not refused:  # forgive network failures, never a refusal
                 lock["outlets"][r["id"]] = old
                 failing.remove(r)
                 kept.append(r["id"])

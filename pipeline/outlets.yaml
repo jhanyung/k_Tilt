@@ -101,9 +101,9 @@ outlets:
   - {id: thefact, name: 더팩트, home: https://news.tf.co.kr, group: internet}
   - {id: breaknews, name: 브레이크뉴스, home: https://www.breaknews.com, group: internet}
   - {id: polinews, name: 폴리뉴스, home: https://www.polinews.co.kr, group: internet}
-  - {id: newstof, name: 뉴스톱, home: https://www.newstof.com, group: internet}
+  - {id: newstof, name: 뉴스톱, home: https://www.newstopkorea.com, group: internet,
+     feeds: ["https://cdn.newstopkorea.com/rss/gn_rss_allArticle.xml"]}
   - {id: straightnews, name: 스트레이트뉴스, home: https://www.straightnews.co.kr, group: internet}
-  - {id: upinews, name: UPI뉴스, home: https://www.upinews.kr, group: internet}
   - {id: wikitree, name: 위키트리, home: https://www.wikitree.co.kr, group: internet}
   - {id: insight, name: 인사이트, home: https://www.insight.co.kr, group: internet}
   - {id: sisafocus, name: 시사포커스, home: https://www.sisafocus.co.kr, group: internet}

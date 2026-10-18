@@ -6,19 +6,29 @@ from __future__ import annotations
 import ssl
 from functools import lru_cache
 from urllib.parse import urljoin, urlsplit
-from urllib.robotparser import RobotFileParser
 
 import httpx
 
+from pipeline.robots import Robots
+
+PRODUCT_TOKEN = "giulgibot"
 USER_AGENT = "GiulgiBot/0.1 (+https://github.com/jhanyung/k_Tilt; news community, links out only)"
 TIMEOUT = httpx.Timeout(15.0, connect=10.0)
-_LEGACY_MARKERS = ("dh key too small", "dh_key_too_small", "unsafe legacy renegotiation")
+_LEGACY_MARKERS = (
+    "dh key too small",
+    "dh_key_too_small",
+    "unsafe legacy renegotiation",
+    "handshake failure",
+    "unsupported protocol",
+    "no ciphers available",
+)
 
 
 def _legacy_context() -> ssl.SSLContext:
     """Certificates are still verified; only the minimum key-strength level is relaxed."""
     ctx = ssl.create_default_context()
-    ctx.set_ciphers("DEFAULT:@SECLEVEL=1")
+    ctx.set_ciphers("ALL:@SECLEVEL=0")
+    ctx.minimum_version = ssl.TLSVersion.MINIMUM_SUPPORTED
     ctx.options |= getattr(ssl, "OP_LEGACY_SERVER_CONNECT", 0)
     return ctx
 
@@ -72,22 +82,22 @@ def stream_bytes(c: httpx.Client, url: str, limit: int) -> tuple[int, bytes | No
 
 
 @lru_cache(maxsize=512)
-def _robots_for(origin: str) -> RobotFileParser | None:
-    """Fetch and parse robots.txt once per origin. None means 'no usable robots.txt'."""
-    rp = RobotFileParser()
+def _robots_for(origin: str) -> Robots | None:
+    """robots.txt for an origin, fetched once per run. None means "no robots.txt" (allow).
+
+    401/403 and server errors are treated as "disallow everything", which is stricter
+    than RFC 9309 requires for 4xx, so that an unreadable file never becomes a yes.
+    """
     try:
         with client() as c:
             r = get(c, f"{origin}/robots.txt")
     except (httpx.HTTPError, ValueError):
-        return None
-    if r.status_code in (401, 403):
-        # Access to robots.txt itself is denied: treat the whole site as disallowed.
-        rp.parse(["User-agent: *", "Disallow: /"])
-        return rp
+        return Robots.deny_all()
+    if r.status_code in (401, 403) or r.status_code >= 500:
+        return Robots.deny_all()
     if r.status_code >= 400:
         return None
-    rp.parse(r.text.splitlines())
-    return rp
+    return Robots.parse(r.text)
 
 
 def sitemaps(url: str) -> list[str]:
@@ -96,10 +106,10 @@ def sitemaps(url: str) -> list[str]:
     origin = f"{parts.scheme}://{parts.netloc}"
     rp = _robots_for(origin)
     # Some sites declare relative sitemap paths; resolve them against the origin.
-    return [urljoin(origin + "/", u) for u in (rp.site_maps() or [])] if rp else []
+    return [urljoin(origin + "/", u) for u in rp.sitemaps] if rp else []
 
 
 def allowed(url: str) -> bool:
     parts = urlsplit(url)
     rp = _robots_for(f"{parts.scheme}://{parts.netloc}")
-    return True if rp is None else rp.can_fetch(USER_AGENT, url)
+    return True if rp is None else rp.can_fetch(PRODUCT_TOKEN, url)

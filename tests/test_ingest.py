@@ -33,4 +33,4 @@ def test_lock_file_is_well_formed():
         assert o["feeds"], oid
         assert o["home"].startswith("https://"), oid
         for f in o["feeds"]:
-            assert f["kind"] in {"rss", "sitemap"}, oid
+            assert f["kind"] in {"rss", "sitemap", "page"}, oid

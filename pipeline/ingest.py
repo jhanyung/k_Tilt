@@ -77,7 +77,7 @@ def collect(outlet_id: str, info: dict, now: float) -> OutletResult:
     with http.client() as c:
         for src in info["feeds"]:
             try:
-                entries, kind, reason = feeds.fetch_entries(src["url"], c)
+                entries, kind, reason = feeds.fetch_any(src, c)
             except Exception as e:  # one outlet must never stop the run
                 entries, kind, reason = [], "", f"error: {type(e).__name__}"
             if reason:
