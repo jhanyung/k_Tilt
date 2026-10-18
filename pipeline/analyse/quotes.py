@@ -58,6 +58,7 @@ def _is_outlet(w: str) -> bool:
     return w in FOREIGN_OUTLETS or (len(w) >= 3 and w.endswith(OUTLET_SUFFIX))
 
 
+NORTH_KOREA = {"조선중앙통신", "노동신문", "조선중앙TV", "조선중앙방송", "북한", "北", "평양"}
 FOREIGN_LEADERS = {
     "트럼프", "푸틴", "시진핑", "젤렌스키", "다카이치", "이시바", "김정은", "김여정", "마크롱",
     "네타냐후", "모디", "밴스", "루비오", "헤그세스", "베선트", "라브로프", "왕이", "리창",
@@ -604,7 +605,7 @@ def classify(org: list[str], name: str, title: str) -> tuple[str, str, str]:
         or name.split(" ")[-1] in FOREIGN_LEADERS
         or " " in name
     )
-    if foreign_title or (foreign and not party):
+    if foreign_title or (foreign and not party) or any(w in NORTH_KOREA for w in words):
         return "해외", "", ""
     if "전" in org and not party:  # former officials
         return "기타", "", ""
