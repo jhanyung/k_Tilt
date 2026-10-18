@@ -15,6 +15,8 @@ jobs:
   discover:
     runs-on: ubuntu-latest
     timeout-minutes: 30
+    env:
+      SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5

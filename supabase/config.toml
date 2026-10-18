@@ -1,0 +1,5 @@
+project_id = "giulgi"
+
+[functions.relay]
+# The relay authenticates callers with its own RELAY_KEY instead of a Supabase JWT.
+verify_jwt = false

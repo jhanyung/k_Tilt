@@ -211,7 +211,7 @@ def parse_sitemap(content: bytes) -> tuple[str, list]:
 
 
 def _get(url: str, c: httpx.Client) -> tuple[bytes | None, str]:
-    why = http.refusal(url)
+    why = http.refusal(url, http.is_relay(c))
     if why:
         return None, why
     body, reason = _get_once(url, c)

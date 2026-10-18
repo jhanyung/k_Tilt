@@ -58,3 +58,25 @@ def test_plan_rows_respects_titles_seen_in_last_48h():
         [ingest.OutletResult("hani", [a])], set(), {("hani", ingest.title_key("검찰 수사 착수"))}
     )
     assert rows == [] and dup == 1
+
+
+def test_relay_settings_derive_from_db_url():
+    from pipeline import relay
+
+    url = (
+        "postgresql://postgres.abcdefref:pw@aws-0-ap-northeast-2.pooler.supabase.com:5432/postgres"
+    )
+    assert relay.project_ref(url) == "abcdefref"
+    assert relay.endpoint(url) == "https://abcdefref.supabase.co/functions/v1/relay"
+    assert relay.relay_key(url) == relay.relay_key(url) and len(relay.relay_key(url)) == 64
+    assert relay.relay_key(url) != relay.relay_key(url.replace(":pw@", ":pw2@"))
+    assert relay.project_ref("postgresql://postgres:pw@db.x.supabase.co/postgres") == ""
+
+
+def test_only_network_failures_never_counts_a_refusal():
+    from pipeline import discover
+
+    assert discover.only_network_failures({"a": "robots.txt unreachable", "b": "http error: X"})
+    assert not discover.only_network_failures({"a": "http error: X", "b": "robots.txt disallows"})
+    assert not discover.only_network_failures({"a": "status 404"})
+    assert not discover.only_network_failures({})

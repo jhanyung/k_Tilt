@@ -10,6 +10,7 @@ from urllib.parse import urljoin, urlsplit
 
 import httpx
 
+from pipeline import relay
 from pipeline.robots import Robots
 
 PRODUCT_TOKEN = "giulgibot"
@@ -34,13 +35,27 @@ def _legacy_context() -> ssl.SSLContext:
     return ctx
 
 
-def client(legacy: bool = False) -> httpx.Client:
+class RelayClient(httpx.Client):
+    """A client whose requests are fetched from Seoul by the Supabase relay."""
+
+
+def client(legacy: bool = False, via_relay: bool = False) -> httpx.Client:
+    headers = {"User-Agent": USER_AGENT, "Accept": "application/rss+xml, application/xml, */*"}
+    if via_relay:
+        # The relay follows redirects itself.
+        return RelayClient(
+            headers=headers, timeout=TIMEOUT, transport=relay.RelayTransport(TIMEOUT)
+        )
     return httpx.Client(
-        headers={"User-Agent": USER_AGENT, "Accept": "application/rss+xml, application/xml, */*"},
+        headers=headers,
         timeout=TIMEOUT,
         follow_redirects=True,
         verify=_legacy_context() if legacy else True,
     )
+
+
+def is_relay(c: httpx.Client) -> bool:
+    return isinstance(c, RelayClient)
 
 
 def _is_legacy_tls_error(e: Exception) -> bool:
@@ -53,7 +68,7 @@ def get(c: httpx.Client, url: str) -> httpx.Response:
     try:
         return c.get(url)
     except httpx.ConnectError as e:
-        if not _is_legacy_tls_error(e):
+        if is_relay(c) or not _is_legacy_tls_error(e):
             raise
     with client(legacy=True) as lc:
         return lc.get(url)
@@ -76,14 +91,14 @@ def stream_bytes(c: httpx.Client, url: str, limit: int) -> tuple[int, bytes | No
     try:
         return run(c)
     except httpx.ConnectError as e:
-        if not _is_legacy_tls_error(e):
+        if is_relay(c) or not _is_legacy_tls_error(e):
             raise
     with client(legacy=True) as lc:
         return run(lc)
 
 
 @lru_cache(maxsize=512)
-def _robots_for(origin: str) -> Robots | None:
+def _robots_for(origin: str, via_relay: bool = False) -> Robots | None:
     """robots.txt for an origin, fetched once per run. None means "no robots.txt" (allow).
 
     401/403 and server errors are treated as "disallow everything", which is stricter
@@ -92,7 +107,7 @@ def _robots_for(origin: str) -> Robots | None:
     r = None
     for attempt in range(2):
         try:
-            with client() as c:
+            with client(via_relay=via_relay) as c:
                 r = get(c, f"{origin}/robots.txt")
             break
         except (httpx.HTTPError, ValueError):
@@ -107,23 +122,23 @@ def _robots_for(origin: str) -> Robots | None:
     return Robots.parse(r.text)
 
 
-def sitemaps(url: str) -> list[str]:
+def sitemaps(url: str, via_relay: bool = False) -> list[str]:
     """Sitemap URLs the site declares in robots.txt."""
     parts = urlsplit(url)
     origin = f"{parts.scheme}://{parts.netloc}"
-    rp = _robots_for(origin)
+    rp = _robots_for(origin, via_relay)
     # Some sites declare relative sitemap paths; resolve them against the origin.
     return [urljoin(origin + "/", u) for u in rp.sitemaps] if rp else []
 
 
-def refusal(url: str) -> str:
+def refusal(url: str, via_relay: bool = False) -> str:
     """Empty if we may fetch url; otherwise why not."""
     parts = urlsplit(url)
-    rp = _robots_for(f"{parts.scheme}://{parts.netloc}")
+    rp = _robots_for(f"{parts.scheme}://{parts.netloc}", via_relay)
     if rp is None or rp.can_fetch(PRODUCT_TOKEN, url):
         return ""
     return "robots.txt unreachable" if rp.unreachable else "robots.txt disallows"
 
 
-def allowed(url: str) -> bool:
-    return not refusal(url)
+def allowed(url: str, via_relay: bool = False) -> bool:
+    return not refusal(url, via_relay)

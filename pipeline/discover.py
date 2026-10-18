@@ -26,7 +26,7 @@ from urllib.parse import urljoin
 import httpx
 import yaml
 
-from pipeline import feeds, http
+from pipeline import feeds, http, relay
 
 ROOT = Path(__file__).resolve().parent
 REGISTRY = ROOT / "outlets.yaml"
@@ -82,7 +82,7 @@ PREFERRED = re.compile(r"all|total|sokbo|newsflash|recent|latest|전체|politic|
 
 
 def _get_html(url: str, c: httpx.Client) -> httpx.Response | None:
-    if not http.allowed(url):
+    if not http.allowed(url, http.is_relay(c)):
         return None
     try:
         r = http.get(c, url)
@@ -119,9 +119,9 @@ def homepage_feeds(home: str, c: httpx.Client) -> list[str]:
     return unique[:15]
 
 
-def robots_news_sitemaps(home: str) -> list[str]:
+def robots_news_sitemaps(home: str, via_relay: bool = False) -> list[str]:
     """Sitemaps from robots.txt, recent-news ones first, yearly archives skipped."""
-    urls = [u for u in http.sitemaps(home + "/") if not SITEMAP_SKIP.search(u)]
+    urls = [u for u in http.sitemaps(home + "/", via_relay) if not SITEMAP_SKIP.search(u)]
     urls.sort(key=lambda u: 0 if SITEMAP_PREF.search(u) else 1)
     return urls[:6]
 
@@ -151,11 +151,11 @@ def listing_pages(home: str, c: httpx.Client) -> list[str]:
     return list(dict.fromkeys(pages))[:3]
 
 
-def resolve(outlet: dict) -> dict:
+def resolve(outlet: dict, via_relay: bool = False) -> dict:
     home = outlet["home"].rstrip("/")
     tried: dict[str, str] = {}
     good: list[feeds.FeedCheck] = []
-    with http.client() as c:
+    with http.client(via_relay=via_relay) as c:
 
         def attempt(urls: list[str], kind_hint: str = "") -> None:
             for u in urls:
@@ -174,7 +174,7 @@ def resolve(outlet: dict) -> dict:
         if not good:
             attempt(homepage_feeds(home, c))
         if not good:
-            attempt(robots_news_sitemaps(home))
+            attempt(robots_news_sitemaps(home, via_relay))
         if not good:
             attempt([home + p for p in COMMON_PATHS + SITEMAP_PATHS])
         elif not any(POLITICS.search(g.url + g.title) for g in good):
@@ -196,7 +196,7 @@ def resolve(outlet: dict) -> dict:
         chosen.append(politics[0])
     if not chosen and good:
         chosen.append(good[0])
-    return {
+    result = {
         "id": outlet["id"],
         "name": outlet["name"],
         "group": outlet["group"],
@@ -204,6 +204,25 @@ def resolve(outlet: dict) -> dict:
         "feeds": [{"url": g.url, "kind": g.kind} for g in chosen],
         "tried": {} if chosen else tried,
     }
+    if via_relay:
+        result["via"] = "relay"
+    return result
+
+
+NETWORK_FAILURE = ("robots.txt unreachable", "http error", "error:", "relay ")
+
+
+def only_network_failures(tried: dict[str, str]) -> bool:
+    return bool(tried) and all(r.startswith(NETWORK_FAILURE) for r in tried.values())
+
+
+def resolve_with_fallback(outlet: dict) -> dict:
+    """Direct first; if the site was only unreachable (never a refusal), try from Seoul."""
+    direct = resolve(outlet)
+    if direct["feeds"] or not relay.available() or not only_network_failures(direct["tried"]):
+        return direct
+    via = resolve(outlet, via_relay=True)
+    return via if via["feeds"] else direct
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -217,7 +236,7 @@ def main(argv: list[str] | None = None) -> int:
         outlets = [o for o in outlets if o["id"] in keep]
 
     with ThreadPoolExecutor(max_workers=12) as pool:
-        results = list(pool.map(resolve, outlets))
+        results = list(pool.map(resolve_with_fallback, outlets))
 
     working = [r for r in results if r["feeds"]]
     failing = [r for r in results if not r["feeds"]]
@@ -233,15 +252,18 @@ def main(argv: list[str] | None = None) -> int:
         for r in list(failing):
             old = previous["outlets"].get(r["id"])
             # Forgive network failures, never a refusal of the sources we actually use.
+            via = old.get("via") == "relay" if old else False
             refused = old and any(
-                http.refusal(src["url"]) == "robots.txt disallows" for src in old["feeds"]
+                http.refusal(src["url"], via) == "robots.txt disallows" for src in old["feeds"]
             )
             if old and not refused:
                 lock["outlets"][r["id"]] = old
                 failing.remove(r)
                 kept.append(r["id"])
     for r in working:
-        lock["outlets"][r["id"]] = {k: r[k] for k in ("name", "group", "home", "feeds")}
+        lock["outlets"][r["id"]] = {
+            k: r[k] for k in ("name", "group", "home", "feeds", "via") if k in r
+        }
     for r in failing:
         lock["failing"][r["id"]] = r["tried"]
     lock["generated_at"] = datetime.now(UTC).isoformat(timespec="seconds")

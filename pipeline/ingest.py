@@ -74,7 +74,7 @@ def collect(outlet_id: str, info: dict, now: float) -> OutletResult:
     res = OutletResult(outlet_id)
     site = feeds.registered_domain(info["home"])
     seen: set[str] = set()
-    with http.client() as c:
+    with http.client(via_relay=info.get("via") == "relay") as c:
         for src in info["feeds"]:
             try:
                 entries, kind, reason = feeds.fetch_any(src, c)
