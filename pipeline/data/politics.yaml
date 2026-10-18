@@ -30,6 +30,10 @@ parties:
     aliases: [사민당]
     bloc: opposition
 
+# Reference statements compared on the party axis (pipeline.analyse.anchors): the two
+# largest parties, whichever holds power.
+party_axis: [더불어민주당, 국민의힘]
+
 # Words that name a camp without naming a party.
 camp_words:
   여당: ruling

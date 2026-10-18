@@ -1,0 +1,48 @@
+# Official statements used as reference points: what the government and each party said
+# about the day's issues, in their own words. Titles, links and dates are stored; the
+# text is read in memory when a story needs it and then dropped.
+#
+# body: class of the element that holds the statement's text on its own page.
+# side: government | party. A party's bloc (ruling/opposition) comes from politics.yaml,
+# so nothing here changes when power changes hands.
+# president.go.kr refuses requests from outside Korea; korea.kr (정책브리핑, run by the
+# Ministry of Culture) republishes every 청와대 briefing and is open to crawlers.
+
+sources:
+  - id: cheongwadae
+    name: 청와대 브리핑
+    side: government
+    list: https://www.korea.kr/briefing/presidentList.do
+    page_param: pageIndex
+    link: '/briefing/presidentView\.do\?newsId=\d+'
+    body: view_cont
+  - id: ministry
+    name: 부처 브리핑
+    side: government
+    list: https://www.korea.kr/briefing/policyBriefingList.do
+    page_param: pageIndex
+    link: '/briefing/policyBriefingView\.do\?newsId=\d+'
+    body: view_cont
+  - id: factcheck
+    name: 사실은 이렇습니다 (정부의 보도 설명·반박)
+    side: government
+    list: https://www.korea.kr/briefing/actuallyList.do
+    page_param: pageIndex
+    link: '/briefing/actuallyView\.do\?newsId=\d+'
+    body: view_cont
+  - id: minjoo
+    name: 더불어민주당 논평·브리핑
+    side: party
+    party: 더불어민주당
+    list: https://theminjoo.kr/main/sub/news/list.php?brd=11
+    page_param: page
+    link: 'view\.php\?(?:sno=\d+&(?:amp;)?)?brd=11&(?:amp;)?post=\d+'
+    body: board-view__contents
+  - id: ppp
+    name: 국민의힘 대변인 논평·브리핑
+    side: party
+    party: 국민의힘
+    list: https://www.peoplepowerparty.kr/news/comment/BBSDD0001
+    page_param: page
+    link: '/news/comment_view/BBSDD0001/\d+'
+    body: conts

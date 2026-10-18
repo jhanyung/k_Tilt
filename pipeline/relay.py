@@ -52,6 +52,9 @@ def allowlist_domains() -> list[str]:
     domains = {registered_domain(o["home"]) for o in outlets}
     for o in outlets:
         domains |= {registered_domain(u) for u in o.get("feeds", [])}
+    sources = Path(__file__).resolve().parent / "data" / "statements.yaml"
+    for s in yaml.safe_load(sources.read_text(encoding="utf-8"))["sources"]:
+        domains.add(registered_domain(s["list"]))
     return sorted(domains)
 
 

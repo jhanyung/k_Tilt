@@ -7,6 +7,8 @@ on:
       - "supabase/functions/**"
       - "supabase/config.toml"
       - "pipeline/outlets.yaml"
+      - "pipeline/data/statements.yaml"
+      - "pipeline/relay.py"
       - ".github/workflows/deploy-functions.yml"
   workflow_dispatch:
 

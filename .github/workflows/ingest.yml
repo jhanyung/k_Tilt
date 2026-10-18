@@ -48,3 +48,7 @@ jobs:
         run: pip install -e .
       - if: steps.gate.outputs.ready == 'true'
         run: python -m pipeline.ingest ${{ inputs.dry_run && '--dry-run' || '' }}
+      - name: Official statements (titles and links only)
+        if: steps.gate.outputs.ready == 'true' && !inputs.dry_run
+        run: python -m pipeline.statements
+        continue-on-error: true

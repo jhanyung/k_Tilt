@@ -1,5 +1,7 @@
 """Analyse the articles of an edition's published stories: fetch each page, extract
-the quotes, store speakers and one-sentence quotes, drop the text.
+the quotes (speakers and one-sentence quotes), count each side's vocabulary in the
+reporter's own sentences, and drop the text. Also links each story to the official
+statements (government, parties) that address it.
 
 Usage:
   python -m pipeline.analyse                     # latest edition
@@ -18,7 +20,8 @@ import time
 from collections import Counter, defaultdict
 from pathlib import Path
 
-from pipeline.analyse import bodies, quotes
+from pipeline import lexicon
+from pipeline.analyse import anchors, bodies, quotes
 
 LOCK = Path(__file__).resolve().parent.parent / "data" / "feeds.lock.json"
 PER_STORY = 30  # articles fetched per story, at most one per outlet
@@ -41,7 +44,9 @@ def pick_articles(rows: list[tuple]) -> list[tuple]:
     return out
 
 
-def summarise(story_rows: dict[int, dict], by_story: dict[int, list[quotes.Quote]]) -> str:
+def summarise(
+    story_rows: dict[int, dict], by_story: dict[int, list[quotes.Quote]], linked: dict
+) -> str:
     lines = []
     for sid, info in story_rows.items():
         qs = quotes.harmonise(by_story.get(sid, []))
@@ -58,7 +63,40 @@ def summarise(story_rows: dict[int, dict], by_story: dict[int, list[quotes.Quote
             lines.append(f"    여권 {blocs['ruling']}  야권 {blocs['opposition']}")
         if top:
             lines.append("    most quoted: " + ", ".join(f"{s} ({n})" for s, n in top))
+        for source, title, _ in linked.get(sid, [])[:4]:
+            lines.append(f"    statement [{source}] {title[:60]}")
     return "\n".join(lines)
+
+
+def link_statements(conn, eid: int, stories: list[tuple]) -> dict[int, list[tuple]]:
+    """Match the statements of the three days before the edition to its stories."""
+    titles: dict[int, list[str]] = defaultdict(list)
+    for sid, title in conn.execute(
+        "select sa.story_id, a.title from story_articles sa join articles a "
+        "on a.id = sa.article_id join stories s on s.id = sa.story_id "
+        "where s.edition_id = %s and s.status = 'published'",
+        (eid,),
+    ):
+        titles[sid].append(title)
+    cands = conn.execute(
+        "select st.id, st.title, st.source from statements st, editions e where e.id = %s "
+        "and coalesce(st.published_on, st.first_seen_at::date) "
+        "between (e.window_end - interval '3 days')::date and e.window_end::date",
+        (eid,),
+    ).fetchall()
+    story_titles = {sid: titles[sid] for sid, _, _ in stories}
+    matched = anchors.match(story_titles, [(i, t) for i, t, _ in cands])
+    info = {i: (t, src) for i, t, src in cands}
+    with conn.cursor() as cur:
+        cur.executemany(
+            "insert into story_statements (story_id, statement_id, similarity) "
+            "values (%s, %s, %s) on conflict do nothing",
+            [(sid, st, sim) for sid, pairs in matched.items() for st, sim in pairs],
+        )
+    return {
+        sid: [(info[st][1], info[st][0], sim) for st, sim in pairs]
+        for sid, pairs in matched.items()
+    }
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -99,13 +137,17 @@ def main(argv: list[str] | None = None) -> int:
         items = [(url, lock.get(o, {}).get("via") == "relay") for _, _, o, url in todo]
         items = list(dict.fromkeys(items))  # an article can sit in two stories
 
-        results: dict[int, tuple[str, list[quotes.Quote]]] = {}
+        lex = lexicon.load(conn)
+        linked = link_statements(conn, eid, stories)
+        results: dict[int, tuple[str, list[quotes.Quote], dict | None]] = {}
         guard = threading.Lock()
 
         def on_page(page: bodies.Page) -> None:
-            found = quotes.extract(page.text) if page.status == "ok" else []
+            ok = page.status == "ok"
+            found = quotes.extract(page.text) if ok else []
+            hits = lexicon.article_hits(page.text, lex) if ok and lex else None
             with guard:
-                results[meta[page.url][0]] = (page.status, found)
+                results[meta[page.url][0]] = (page.status, found, hits)
             # page.text goes out of scope here; nothing keeps it.
 
         counts = bodies.fetch_many(items, on_page)
@@ -115,22 +157,22 @@ def main(argv: list[str] | None = None) -> int:
             for sid, rank, headline in stories
         }
         by_story: dict[int, list[quotes.Quote]] = defaultdict(list)
-        for aid, (status, found) in results.items():
+        for aid, (status, found, _) in results.items():
             for sid in story_of[aid]:
                 story_info[sid]["tried"] += 1
                 story_info[sid]["ok"] += status == "ok"
                 by_story[sid].extend(found)
-        text = summarise(story_info, by_story)
+        text = summarise(story_info, by_story, linked)
         print(text)
         print(f"\npages: {dict(counts)}  ({time.time() - t0:.0f}s)")
 
         if not args.dry_run:
             with conn.transaction():
-                for aid, (status, found) in results.items():
+                for aid, (status, found, hits) in results.items():
                     conn.execute(
-                        "update articles set analysed_at = now(), analyse_status = %s "
-                        "where id = %s",
-                        (status, aid),
+                        "update articles set analysed_at = now(), analyse_status = %s, "
+                        "metrics = metrics || %s::jsonb where id = %s",
+                        (status, json.dumps({"lex": hits} if hits else {}), aid),
                     )
                     conn.execute("delete from quotes where article_id = %s", (aid,))
                     with conn.cursor() as cur:

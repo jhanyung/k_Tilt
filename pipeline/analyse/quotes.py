@@ -10,14 +10,13 @@ Rules first, model later:
      previous speaker.
   3. Short forms ("정 원내대표", "李 대통령") resolve to the full name in the article.
   4. Role and party come from the words around the name (party, ministry, title, country),
-     then from other mentions of the same name, then from the Assembly member list.
+     then from other mentions of the same name in the article or the story.
      What is still unknown is left as 미상 for the model fallback (cards step).
 Only the speaker, their role and the first sentence of each quote leave this module.
 """
 
 from __future__ import annotations
 
-import json
 import re
 from collections import Counter, defaultdict
 from dataclasses import asdict, dataclass, field
@@ -199,25 +198,12 @@ def politics() -> dict:
 
 
 @lru_cache(maxsize=1)
-def members() -> dict[str, str]:
-    """Assembly member name -> party. Names shared by two members are left out."""
-    path = DATA / "assembly_members.json"
-    if not path.exists():
-        return {}
-    rows = json.loads(path.read_text(encoding="utf-8")).get("members", [])
-    seen: dict[str, set[str]] = defaultdict(set)
-    for r in rows:
-        seen[r["name"]].add(r.get("party", ""))
-    return {n: next(iter(p)) for n, p in seen.items() if len(p) == 1}
-
-
-@lru_cache(maxsize=1)
 def _kiwi():
     from kiwipiepy import Kiwi
 
     kiwi = Kiwi()
-    # Keep party, ministry and member names whole ("국민의힘" must not become 국민/의/힘).
-    words = [*politics()["party_names"], *politics()["camp_words"], *GOV_ORGS, *members()]
+    # Keep party and ministry names whole ("국민의힘" must not become 국민/의/힘).
+    words = [*politics()["party_names"], *politics()["camp_words"], *GOV_ORGS]
     for word in words:
         if len(word) >= 2 and re.fullmatch(r"[가-힣]+", word):
             kiwi.add_user_word(word, "NNP", 0.0)
@@ -589,9 +575,6 @@ def classify(org: list[str], name: str, title: str) -> tuple[str, str, str]:
     cfg = politics()
     words = [*org, title]
     party, bloc = _party_of(words)
-    if not party and name in members():
-        party = members()[name]
-        bloc = _bloc(party)
 
     def hit(vocab: set[str]) -> bool:
         return any(_vocab_hit(w, vocab) for w in words if w)

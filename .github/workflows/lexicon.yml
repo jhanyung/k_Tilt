@@ -1,0 +1,42 @@
+name: lexicon
+
+# Each side's vocabulary from its official statements, then each outlet's place.
+# Daily; run by hand with more pages to backfill. Statement text is read in memory only.
+on:
+  schedule:
+    - cron: "50 18 * * *" # 03:50 KST
+  workflow_dispatch:
+    inputs:
+      pages:
+        description: "List pages to read per source (backfill: 40)"
+        type: string
+        default: "2"
+      limit:
+        description: "Statements to count this run"
+        type: string
+        default: "400"
+
+permissions:
+  contents: read
+
+concurrency:
+  group: lexicon
+
+jobs:
+  lexicon:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -e ".[analyse]"
+      - run: python -m pipeline.statements --pages ${{ inputs.pages || '2' }}
+        continue-on-error: true
+      - run: python -m pipeline.lexicon count --limit ${{ inputs.limit || '400' }}
+      - run: python -m pipeline.lexicon build
+      - run: python -m pipeline.lexicon place
