@@ -1,0 +1,39 @@
+name: diagnose-outlets
+
+on:
+  workflow_dispatch:
+    inputs:
+      outlets:
+        description: "Comma-separated outlet ids (empty = all without a source)"
+        type: string
+        default: ""
+      discover:
+        description: "Also re-run discovery for these outlets and print the result"
+        type: boolean
+        default: true
+
+permissions:
+  contents: read
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -e .
+      - name: Pick outlets
+        id: pick
+        run: |
+          ids="${{ inputs.outlets }}"
+          if [ -z "$ids" ]; then
+            ids=$(python -c "import json;print(','.join(json.load(open('pipeline/data/feeds.lock.json'))['failing']))")
+          fi
+          echo "ids=$ids" >> "$GITHUB_OUTPUT"
+      - run: python -m pipeline.diagnose "${{ steps.pick.outputs.ids }}"
+      - if: inputs.discover
+        run: python -m pipeline.discover --only "${{ steps.pick.outputs.ids }}"

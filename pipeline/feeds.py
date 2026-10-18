@@ -128,17 +128,14 @@ def _get(url: str, c: httpx.Client) -> tuple[bytes | None, str]:
 
 def _get_once(url: str, c: httpx.Client) -> tuple[bytes | None, str]:
     try:
-        with c.stream("GET", url) as r:
-            if r.status_code != 200:
-                return None, f"status {r.status_code}"
-            buf = bytearray()
-            for chunk in r.iter_bytes():
-                buf += chunk
-                if len(buf) > MAX_BYTES:
-                    return None, "too large"
-            return bytes(buf), ""
+        status, body = http.stream_bytes(c, url, MAX_BYTES)
     except (httpx.HTTPError, ValueError) as e:  # ValueError: malformed URL
         return None, f"http error: {type(e).__name__}"
+    if status != 200:
+        return None, f"status {status}"
+    if body is None:
+        return None, "too large"
+    return body, ""
 
 
 def fetch_entries(url: str, c: httpx.Client, _depth: int = 0) -> tuple[list[Entry], str, str]:

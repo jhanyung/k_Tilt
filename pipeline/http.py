@@ -1,7 +1,9 @@
-"""Polite HTTP access: an honest user agent, robots.txt checks and timeouts."""
+"""Polite HTTP access: an honest user agent, robots.txt checks, timeouts, and a fallback
+for servers that still use legacy TLS settings."""
 
 from __future__ import annotations
 
+import ssl
 from functools import lru_cache
 from urllib.parse import urljoin, urlsplit
 from urllib.robotparser import RobotFileParser
@@ -10,14 +12,63 @@ import httpx
 
 USER_AGENT = "GiulgiBot/0.1 (+https://github.com/jhanyung/k_Tilt; news community, links out only)"
 TIMEOUT = httpx.Timeout(15.0, connect=10.0)
+_LEGACY_MARKERS = ("dh key too small", "dh_key_too_small", "unsafe legacy renegotiation")
 
 
-def client() -> httpx.Client:
+def _legacy_context() -> ssl.SSLContext:
+    """Certificates are still verified; only the minimum key-strength level is relaxed."""
+    ctx = ssl.create_default_context()
+    ctx.set_ciphers("DEFAULT:@SECLEVEL=1")
+    ctx.options |= getattr(ssl, "OP_LEGACY_SERVER_CONNECT", 0)
+    return ctx
+
+
+def client(legacy: bool = False) -> httpx.Client:
     return httpx.Client(
         headers={"User-Agent": USER_AGENT, "Accept": "application/rss+xml, application/xml, */*"},
         timeout=TIMEOUT,
         follow_redirects=True,
+        verify=_legacy_context() if legacy else True,
     )
+
+
+def _is_legacy_tls_error(e: Exception) -> bool:
+    text = str(e).lower()
+    return any(m in text for m in _LEGACY_MARKERS)
+
+
+def get(c: httpx.Client, url: str) -> httpx.Response:
+    """GET with a one-time retry on a legacy-TLS client when the handshake demands it."""
+    try:
+        return c.get(url)
+    except httpx.ConnectError as e:
+        if not _is_legacy_tls_error(e):
+            raise
+    with client(legacy=True) as lc:
+        return lc.get(url)
+
+
+def stream_bytes(c: httpx.Client, url: str, limit: int) -> tuple[int, bytes | None]:
+    """Status and body (None if larger than limit), with the same legacy-TLS fallback."""
+
+    def run(cl: httpx.Client) -> tuple[int, bytes | None]:
+        with cl.stream("GET", url) as r:
+            if r.status_code != 200:
+                return r.status_code, b""
+            buf = bytearray()
+            for chunk in r.iter_bytes():
+                buf += chunk
+                if len(buf) > limit:
+                    return r.status_code, None
+            return r.status_code, bytes(buf)
+
+    try:
+        return run(c)
+    except httpx.ConnectError as e:
+        if not _is_legacy_tls_error(e):
+            raise
+    with client(legacy=True) as lc:
+        return run(lc)
 
 
 @lru_cache(maxsize=512)
@@ -26,7 +77,7 @@ def _robots_for(origin: str) -> RobotFileParser | None:
     rp = RobotFileParser()
     try:
         with client() as c:
-            r = c.get(f"{origin}/robots.txt")
+            r = get(c, f"{origin}/robots.txt")
     except (httpx.HTTPError, ValueError):
         return None
     if r.status_code in (401, 403):

@@ -84,7 +84,7 @@ def _get_html(url: str, c: httpx.Client) -> httpx.Response | None:
     if not http.allowed(url):
         return None
     try:
-        r = c.get(url)
+        r = http.get(c, url)
     except (httpx.HTTPError, ValueError):
         return None
     if r.status_code != 200 or "html" not in r.headers.get("content-type", ""):
