@@ -103,6 +103,9 @@ def _robots_for(origin: str, via_relay: bool = False) -> Robots | None:
 
     401/403 and server errors are treated as "disallow everything", which is stricter
     than RFC 9309 requires for 4xx, so that an unreadable file never becomes a yes.
+    They are marked unreachable, not refused: a 403 on robots.txt is a firewall turning
+    away the request (often by region), not the outlet opting out, so discovery retries
+    through the Seoul relay instead of listing the outlet as 수집거부.
     """
     r = None
     for attempt in range(2):
@@ -116,7 +119,7 @@ def _robots_for(origin: str, via_relay: bool = False) -> Robots | None:
     if r is None or r.status_code >= 500:
         return Robots.deny_all(unreachable=True)
     if r.status_code in (401, 403):
-        return Robots.deny_all()
+        return Robots.deny_all(unreachable=True)
     if r.status_code >= 400:
         return None
     return Robots.parse(r.text)
