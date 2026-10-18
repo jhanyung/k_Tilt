@@ -15,12 +15,20 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-dev = ["ruff>=0.6", "pytest>=8", "numpy>=1.26", "scikit-learn>=1.4"]
+dev = [
+  "ruff>=0.6", "pytest>=8", "numpy>=1.26", "scikit-learn>=1.4", "kiwipiepy>=0.18",
+  "trafilatura>=2.0", "lxml>=5.0",
+]
 # Ranking: sentence embeddings (ONNX, no PyTorch) and the Kiwi Korean analyser.
 rank = ["numpy>=1.26", "scikit-learn>=1.4", "fastembed>=0.4", "kiwipiepy>=0.18"]
+# Quotes: article text extraction (in memory only) and the Kiwi Korean analyser.
+analyse = ["trafilatura>=2.0", "lxml>=5.0", "kiwipiepy>=0.18"]
 
-[tool.setuptools]
-packages = ["pipeline"]
+[tool.setuptools.packages.find]
+include = ["pipeline*"]
+
+[tool.setuptools.package-data]
+pipeline = ["data/*.yaml", "data/*.json"]
 
 [tool.ruff]
 line-length = 100

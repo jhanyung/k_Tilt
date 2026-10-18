@@ -1,0 +1,40 @@
+# Political context used to place quoted speakers. Update when power changes hands.
+# bloc: ruling = the president's party; opposition = everyone else in the Assembly.
+# Edit this file, not the code, when a party renames, merges or a new president takes office.
+
+president:
+  name: 이재명
+  party: 더불어민주당
+  since: 2025-06-04
+
+parties:
+  더불어민주당:
+    aliases: [민주당, 더민주]
+    bloc: ruling
+  국민의힘:
+    aliases: [국힘]
+    bloc: opposition
+  조국혁신당:
+    aliases: [혁신당]
+    bloc: opposition
+  개혁신당:
+    aliases: []
+    bloc: opposition
+  진보당:
+    aliases: []
+    bloc: opposition
+  기본소득당:
+    aliases: []
+    bloc: opposition
+  사회민주당:
+    aliases: [사민당]
+    bloc: opposition
+
+# Words that name a camp without naming a party.
+camp_words:
+  여당: ruling
+  여권: ruling
+  야당: opposition
+  야권: opposition
+  범여권: ruling
+  범야권: opposition
