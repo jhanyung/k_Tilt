@@ -43,6 +43,7 @@ PER_GROUP = 400
 WINDOW_DAYS = 30
 MIN_ARTICLES = 20  # an outlet needs this many scored articles to be placed
 HOST_PAUSE = 1.0
+FLUSH_EVERY = 100
 
 
 def group_of(src: dict) -> str:
@@ -52,28 +53,59 @@ def group_of(src: dict) -> str:
 # ---------- count ----------
 
 
-def count(limit: int) -> int:
+def _flush(sums: dict[str, Counter], docs: dict[str, Counter], done: list[int]) -> None:
+    """Add counts in one round trip: COPY into a temp table, then upsert."""
+    from pipeline.db import connect
+
+    if not done:
+        return
+    with connect() as conn:
+        conn.execute("create temp table lc (grp text, term text, n int, docs int) on commit drop")
+        with conn.cursor() as cur:
+            with cur.copy("copy lc (grp, term, n, docs) from stdin") as cp:
+                for g, c in sums.items():
+                    for t, n in c.items():
+                        cp.write_row((g, t, n, docs[g][t]))
+            cur.execute(
+                "insert into lexicon_counts (grp, term, n, docs) select grp, term, n, docs "
+                "from lc on conflict (grp, term) do update set "
+                "n = lexicon_counts.n + excluded.n, docs = lexicon_counts.docs + excluded.docs"
+            )
+            cur.execute("update statements set counted_at = now() where id = any(%s)", (done,))
+        conn.commit()
+
+
+def count(limit: int, minutes: float = 60) -> int:
+    """Count up to `limit` statements, party statements first (they are fewer), saving
+    every FLUSH_EVERY statements so a long backfill keeps what it has done."""
     from pipeline.db import connect
 
     srcs = {s["id"]: s for s in sources()}
     with connect() as conn:
         rows = conn.execute(
             "select id, source, url, title from statements where counted_at is null "
-            "order by published_on desc nulls last limit %s",
+            "order by (side = 'party') desc, published_on desc nulls last limit %s",
             (limit,),
         ).fetchall()
     by_host: dict[str, list] = defaultdict(list)
     for r in rows:
         by_host[urlsplit(r[2]).netloc].append(r)
 
-    sums: dict[str, Counter] = defaultdict(Counter)
-    docs: dict[str, Counter] = defaultdict(Counter)
-    done: list[int] = []
+    deadline = time.time() + minutes * 60
+    state = {"sums": defaultdict(Counter), "docs": defaultdict(Counter), "done": []}
+    total = Counter()
     guard = threading.Lock()
+
+    def save() -> None:
+        _flush(state["sums"], state["docs"], state["done"])
+        total["n"] += len(state["done"])
+        state.update(sums=defaultdict(Counter), docs=defaultdict(Counter), done=[])
 
     def run(host: str) -> None:
         with http.client() as c:
             for n, (sid, source, url, title) in enumerate(by_host[host]):
+                if time.time() > deadline:
+                    return
                 if n:
                     time.sleep(HOST_PAUSE)
                 if http.refusal(url):
@@ -89,27 +121,18 @@ def count(limit: int) -> int:
                 words = A.words(f"{title}\n{text}")
                 with guard:
                     g = group_of(src)
-                    sums[g].update(words)
-                    docs[g].update(words.keys())
-                    done.append(sid)
+                    state["sums"][g].update(words)
+                    state["docs"][g].update(words.keys())
+                    state["done"].append(sid)
+                    if len(state["done"]) >= FLUSH_EVERY:
+                        save()
 
     with ThreadPoolExecutor(4) as pool:
         list(pool.map(run, list(by_host)))
-
-    with connect() as conn:
-        with conn.cursor() as cur:
-            cur.executemany(
-                "insert into lexicon_counts (grp, term, n, docs) values (%s, %s, %s, %s) "
-                "on conflict (grp, term) do update set n = lexicon_counts.n + excluded.n, "
-                "docs = lexicon_counts.docs + excluded.docs",
-                [(g, t, n, docs[g][t]) for g, c in sums.items() for t, n in c.items()],
-            )
-            cur.execute("update statements set counted_at = now() where id = any(%s)", (done,))
-        conn.commit()
-    print(f"counted {len(done)} of {len(rows)} statements: " + ", ".join(
-        f"{g} {sum(1 for _ in c)} words" for g, c in sums.items()
-    ))  # fmt: skip
-    return len(done)
+    with guard:
+        save()
+    print(f"counted {total['n']} of {len(rows)} statements waiting")
+    return total["n"]
 
 
 # ---------- build ----------
@@ -261,9 +284,10 @@ def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("action", choices=["count", "build", "place"])
     ap.add_argument("--limit", type=int, default=400)
+    ap.add_argument("--minutes", type=float, default=60)
     args = ap.parse_args(argv)
     if args.action == "count":
-        count(args.limit)
+        count(args.limit, args.minutes)
     elif args.action == "build":
         build()
     else:

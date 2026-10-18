@@ -37,6 +37,6 @@ jobs:
       - run: pip install -e ".[analyse]"
       - run: python -m pipeline.statements --pages ${{ inputs.pages || '2' }}
         continue-on-error: true
-      - run: python -m pipeline.lexicon count --limit ${{ inputs.limit || '400' }}
+      - run: python -m pipeline.lexicon count --limit ${{ inputs.limit || '400' }} --minutes 60
       - run: python -m pipeline.lexicon build
       - run: python -m pipeline.lexicon place
