@@ -65,7 +65,8 @@
           "url": "https://ichannela.com/sitemap/news-sitemap.do",
           "kind": "sitemap"
         }
-      ]
+      ],
+      "via": "relay"
     },
     "chosun": {
       "name": "조선일보",
@@ -202,7 +203,7 @@
       "home": "https://www.etnews.com",
       "feeds": [
         {
-          "url": "http://rss.etnews.com/Section901.xml",
+          "url": "http://rss.etnews.com/02.xml",
           "kind": "rss"
         }
       ]
@@ -865,8 +866,8 @@
       "home": "https://www.mt.co.kr",
       "feeds": [
         {
-          "url": "https://rss.mt.co.kr/mt_news.xml",
-          "kind": "rss"
+          "url": "https://www.mt.co.kr/sitemap/news/daily.xml",
+          "kind": "sitemap"
         }
       ]
     },
@@ -1351,36 +1352,36 @@
       "https://www.asiae.co.kr/": "robots.txt disallows"
     },
     "breaknews": {
-      "https://www.breaknews.com/rss/allArticle.xml": "robots.txt unreachable",
-      "https://www.breaknews.com/rss/S1N1.xml": "robots.txt unreachable",
-      "https://www.breaknews.com/rss": "robots.txt unreachable",
-      "https://www.breaknews.com/rss.xml": "robots.txt unreachable",
-      "https://www.breaknews.com/rss/rss.xml": "robots.txt unreachable",
-      "https://www.breaknews.com/feed": "robots.txt unreachable",
-      "https://www.breaknews.com/feed/": "robots.txt unreachable",
-      "https://www.breaknews.com/rss/all.xml": "robots.txt unreachable",
-      "https://www.breaknews.com/rss/total.xml": "robots.txt unreachable",
-      "https://www.breaknews.com/sitemap-news.xml": "robots.txt unreachable",
-      "https://www.breaknews.com/news-sitemap.xml": "robots.txt unreachable",
-      "https://www.breaknews.com/sitemap_news.xml": "robots.txt unreachable",
-      "https://www.breaknews.com/sitemap/news.xml": "robots.txt unreachable",
-      "https://www.breaknews.com/": "robots.txt unreachable"
+      "https://www.breaknews.com/rss/allArticle.xml": "robots.txt blocked",
+      "https://www.breaknews.com/rss/S1N1.xml": "robots.txt blocked",
+      "https://www.breaknews.com/rss": "robots.txt blocked",
+      "https://www.breaknews.com/rss.xml": "robots.txt blocked",
+      "https://www.breaknews.com/rss/rss.xml": "robots.txt blocked",
+      "https://www.breaknews.com/feed": "robots.txt blocked",
+      "https://www.breaknews.com/feed/": "robots.txt blocked",
+      "https://www.breaknews.com/rss/all.xml": "robots.txt blocked",
+      "https://www.breaknews.com/rss/total.xml": "robots.txt blocked",
+      "https://www.breaknews.com/sitemap-news.xml": "robots.txt blocked",
+      "https://www.breaknews.com/news-sitemap.xml": "robots.txt blocked",
+      "https://www.breaknews.com/sitemap_news.xml": "robots.txt blocked",
+      "https://www.breaknews.com/sitemap/news.xml": "robots.txt blocked",
+      "https://www.breaknews.com/": "robots.txt blocked"
     },
     "businesspost": {
-      "https://www.businesspost.co.kr/rss/allArticle.xml": "robots.txt unreachable",
-      "https://www.businesspost.co.kr/rss/S1N1.xml": "robots.txt unreachable",
-      "https://www.businesspost.co.kr/rss": "robots.txt unreachable",
-      "https://www.businesspost.co.kr/rss.xml": "robots.txt unreachable",
-      "https://www.businesspost.co.kr/rss/rss.xml": "robots.txt unreachable",
-      "https://www.businesspost.co.kr/feed": "robots.txt unreachable",
-      "https://www.businesspost.co.kr/feed/": "robots.txt unreachable",
-      "https://www.businesspost.co.kr/rss/all.xml": "robots.txt unreachable",
-      "https://www.businesspost.co.kr/rss/total.xml": "robots.txt unreachable",
-      "https://www.businesspost.co.kr/sitemap-news.xml": "robots.txt unreachable",
-      "https://www.businesspost.co.kr/news-sitemap.xml": "robots.txt unreachable",
-      "https://www.businesspost.co.kr/sitemap_news.xml": "robots.txt unreachable",
-      "https://www.businesspost.co.kr/sitemap/news.xml": "robots.txt unreachable",
-      "https://www.businesspost.co.kr/": "robots.txt unreachable"
+      "https://www.businesspost.co.kr/rss/allArticle.xml": "robots.txt blocked",
+      "https://www.businesspost.co.kr/rss/S1N1.xml": "robots.txt blocked",
+      "https://www.businesspost.co.kr/rss": "robots.txt blocked",
+      "https://www.businesspost.co.kr/rss.xml": "robots.txt blocked",
+      "https://www.businesspost.co.kr/rss/rss.xml": "robots.txt blocked",
+      "https://www.businesspost.co.kr/feed": "robots.txt blocked",
+      "https://www.businesspost.co.kr/feed/": "robots.txt blocked",
+      "https://www.businesspost.co.kr/rss/all.xml": "robots.txt blocked",
+      "https://www.businesspost.co.kr/rss/total.xml": "robots.txt blocked",
+      "https://www.businesspost.co.kr/sitemap-news.xml": "robots.txt blocked",
+      "https://www.businesspost.co.kr/news-sitemap.xml": "robots.txt blocked",
+      "https://www.businesspost.co.kr/sitemap_news.xml": "robots.txt blocked",
+      "https://www.businesspost.co.kr/sitemap/news.xml": "robots.txt blocked",
+      "https://www.businesspost.co.kr/": "robots.txt blocked"
     },
     "kwangju": {
       "https://www.kwangju.co.kr/rss/allArticle.xml": "robots.txt unreachable",
@@ -1503,5 +1504,8 @@
     "news2day",
     "nongmin"
   ],
-  "generated_at": "2026-10-18T09:21:43+00:00"
+  "blocked": [
+    "breaknews"
+  ],
+  "generated_at": "2026-10-18T09:25:28+00:00"
 }
