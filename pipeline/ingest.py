@@ -108,61 +108,76 @@ def collect_all(lock: dict, workers: int = 12) -> list[OutletResult]:
         return [f.result() for f in futures]
 
 
+def plan_rows(
+    results: list[OutletResult], known_hashes: set[str], recent_keys: set[tuple[str, str]]
+) -> tuple[list[tuple], int]:
+    """Rows to insert after dropping URLs we already have and titles an outlet already
+    published in the last 48 hours. Pure function, so it is unit-tested."""
+    rows: list[tuple] = []
+    dup = 0
+    seen_keys = set(recent_keys)
+    seen_hashes = set(known_hashes)
+    for res in results:
+        for item in res.items:
+            h = sha1(item.url)
+            key = title_key(item.title)
+            if h in seen_hashes or (item.outlet_id, key) in seen_keys:
+                dup += 1
+                continue
+            seen_hashes.add(h)
+            seen_keys.add((item.outlet_id, key))
+            published = datetime.fromtimestamp(item.published, UTC) if item.published else None
+            rows.append((item.outlet_id, item.url, h, item.title, key, published, item.kind))
+    return rows, dup
+
+
 def store(results: list[OutletResult], lock: dict, started: datetime) -> dict:
+    """A handful of round trips regardless of volume: the database is in Seoul and the
+    runner usually is not, so per-row statements would take tens of minutes."""
     from pipeline.db import connect
 
-    new = dup = 0
-    with connect() as conn:
-        with conn.cursor() as cur:
-            cur.executemany(
-                "insert into outlets (id, name, grp, home) values (%s, %s, %s, %s) "
-                "on conflict (id) do update set name = excluded.name, grp = excluded.grp, "
-                "home = excluded.home, updated_at = now()",
-                [(oid, o["name"], o["group"], o["home"]) for oid, o in lock["outlets"].items()],
-            )
-            for res in results:
-                if not res.items:
-                    continue
-                keys = [title_key(i.title) for i in res.items]
-                cur.execute(
-                    "select title_key from articles where outlet_id = %s and title_key = any(%s) "
-                    "and first_seen_at > now() - interval '48 hours'",
-                    (res.outlet_id, keys),
-                )
-                recent = {r[0] for r in cur.fetchall()}
-                for item, key in zip(res.items, keys, strict=True):
-                    if key in recent:
-                        dup += 1
-                        continue
-                    published = (
-                        datetime.fromtimestamp(item.published, UTC) if item.published else None
-                    )
-                    cur.execute(
-                        "insert into articles (outlet_id, url, url_hash, title, title_key, "
-                        "published_at, source_kind) values (%s, %s, %s, %s, %s, %s, %s) "
-                        "on conflict (url_hash) do nothing",
-                        (
-                            item.outlet_id,
-                            item.url,
-                            sha1(item.url),
-                            item.title,
-                            key,
-                            published,
-                            item.kind,
-                        ),
-                    )
-                    if cur.rowcount:
-                        new += 1
-                        recent.add(key)
-                    else:
-                        dup += 1
-            ok = sum(1 for r in results if r.items)
-            errors = {r.outlet_id: r.errors for r in results if r.errors}
-            cur.execute(
-                "insert into ingest_runs (started_at, outlets_ok, outlets_failed, new_articles, "
-                "duplicates, errors) values (%s, %s, %s, %s, %s, %s)",
-                (started, ok, len(results) - ok, new, dup, json.dumps(errors, ensure_ascii=False)),
-            )
+    hashes = [sha1(i.url) for r in results for i in r.items]
+    with connect() as conn, conn.cursor() as cur:
+        cur.executemany(
+            "insert into outlets (id, name, grp, home) values (%s, %s, %s, %s) "
+            "on conflict (id) do update set name = excluded.name, grp = excluded.grp, "
+            "home = excluded.home, updated_at = now()",
+            [(oid, o["name"], o["group"], o["home"]) for oid, o in lock["outlets"].items()],
+        )
+        cur.execute("select url_hash from articles where url_hash = any(%s)", (hashes,))
+        known = {r[0] for r in cur.fetchall()}
+        cur.execute(
+            "select outlet_id, title_key from articles "
+            "where first_seen_at > now() - interval '48 hours'"
+        )
+        recent = {(r[0], r[1]) for r in cur.fetchall()}
+        rows, dup = plan_rows(results, known, recent)
+
+        cur.execute(
+            "create temp table incoming (outlet_id text, url text, url_hash text, title text, "
+            "title_key text, published_at timestamptz, source_kind text) on commit drop"
+        )
+        with cur.copy(
+            "copy incoming (outlet_id, url, url_hash, title, title_key, published_at, "
+            "source_kind) from stdin"
+        ) as copy:
+            for row in rows:
+                copy.write_row(row)
+        cur.execute(
+            "insert into articles (outlet_id, url, url_hash, title, title_key, published_at, "
+            "source_kind) select outlet_id, url, url_hash, title, title_key, published_at, "
+            "source_kind from incoming on conflict (url_hash) do nothing"
+        )
+        new = cur.rowcount
+        dup += len(rows) - new
+
+        ok = sum(1 for r in results if r.items)
+        errors = {r.outlet_id: r.errors for r in results if r.errors}
+        cur.execute(
+            "insert into ingest_runs (started_at, outlets_ok, outlets_failed, new_articles, "
+            "duplicates, errors) values (%s, %s, %s, %s, %s, %s)",
+            (started, ok, len(results) - ok, new, dup, json.dumps(errors, ensure_ascii=False)),
+        )
         conn.commit()
     return {"new": new, "duplicates": dup}
 

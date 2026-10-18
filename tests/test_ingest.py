@@ -34,3 +34,27 @@ def test_lock_file_is_well_formed():
         assert o["home"].startswith("https://"), oid
         for f in o["feeds"]:
             assert f["kind"] in {"rss", "sitemap", "page"}, oid
+
+
+def test_plan_rows_drops_known_urls_and_repeated_titles():
+    a = ingest.Item("hani", "https://www.hani.co.kr/arti/1", "[속보] 예산안 통과", 1e9, "rss")
+    b = ingest.Item(
+        "hani", "https://www.hani.co.kr/arti/2", "예산안 통과", 1e9, "rss"
+    )  # same title
+    c = ingest.Item(
+        "khan", "https://www.khan.co.kr/a/9", "예산안 통과", None, "rss"
+    )  # other outlet
+    d = ingest.Item("khan", "https://www.khan.co.kr/a/10", "새 기사", None, "page")
+    res = [ingest.OutletResult("hani", [a, b]), ingest.OutletResult("khan", [c, d])]
+    known = {ingest.sha1(d.url)}
+    rows, dup = ingest.plan_rows(res, known, recent_keys=set())
+    assert [r[1] for r in rows] == [a.url, c.url]
+    assert dup == 2
+
+
+def test_plan_rows_respects_titles_seen_in_last_48h():
+    a = ingest.Item("hani", "https://www.hani.co.kr/arti/3", "검찰 수사 착수", None, "rss")
+    rows, dup = ingest.plan_rows(
+        [ingest.OutletResult("hani", [a])], set(), {("hani", ingest.title_key("검찰 수사 착수"))}
+    )
+    assert rows == [] and dup == 1
