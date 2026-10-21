@@ -15,6 +15,10 @@ on:
         description: "Statements to count this run"
         type: string
         default: "400"
+      reset:
+        description: "Clear all counts and count every statement again"
+        type: boolean
+        default: false
 
 permissions:
   contents: read
@@ -35,6 +39,8 @@ jobs:
           python-version: "3.12"
           cache: pip
       - run: pip install -e ".[analyse]"
+      - if: ${{ inputs.reset }}
+        run: python -m pipeline.lexicon reset
       - run: python -m pipeline.statements --pages ${{ inputs.pages || '2' }}
         continue-on-error: true
       - run: python -m pipeline.lexicon count --limit ${{ inputs.limit || '400' }} --minutes 60

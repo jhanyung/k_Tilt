@@ -37,9 +37,9 @@ from pipeline.analyse import quotes as Q
 from pipeline.feeds import decode_html
 from pipeline.statements import sources
 
-MIN_DOCS = 5  # a word must appear in this many statements of the group
-Z_KEEP = 3.0
-PER_GROUP = 400
+MIN_DOCS = 3  # a word must appear in this many statements of its side
+Z_KEEP = 2.58
+PER_GROUP = 300
 WINDOW_DAYS = 30
 MIN_ARTICLES = 20  # an outlet needs this many scored articles to be placed
 HOST_PAUSE = 1.0
@@ -47,7 +47,12 @@ FLUSH_EVERY = 100
 
 
 def group_of(src: dict) -> str:
-    return "정부" if src["side"] == "government" else src["party"]
+    """정부 = 청와대 briefings and the government's rebuttals of news reports. Ministry
+    briefings are mostly Q&A transcripts on technical policy; they are counted apart
+    (부처) and left out of the comparison."""
+    if src["side"] == "government":
+        return "부처" if src["id"] == "ministry" else "정부"
+    return src["party"]
 
 
 # ---------- count ----------
@@ -149,7 +154,27 @@ def count(limit: int, minutes: float = 60) -> int:
 # ---------- build ----------
 
 
+def axes_groups(counts: dict[str, Counter], docs: dict[str, Counter]) -> dict:
+    """The two comparisons as (A name, A counts, A docs, B name, B counts, B docs)."""
+    cfg = Q.politics()
+    first, second = cfg["party_axis"]
+    opp = [p for p, s in cfg["parties"].items() if s["bloc"] == "opposition"]
+    opp_n, opp_d = Counter(), Counter()
+    for p in opp:
+        opp_n.update(counts.get(p, Counter()))
+        opp_d.update(docs.get(p, Counter()))
+    return {
+        "ideology": (second, counts.get(second, Counter()), docs.get(second, Counter()),
+                     first, counts.get(first, Counter()), docs.get(first, Counter())),
+        "power": ("정부", counts.get("정부", Counter()), docs.get("정부", Counter()),
+                  "야당", opp_n, opp_d),
+    }  # fmt: skip
+
+
 def build() -> dict[str, list[tuple[str, float]]]:
+    """Each axis compares its two sides directly (not each side against everything
+    else, which let the large government corpus drown out a party's words) and keeps
+    the same number of words for each side."""
     from pipeline.db import connect
 
     with connect() as conn:
@@ -159,26 +184,40 @@ def build() -> dict[str, list[tuple[str, float]]]:
         for g, t, n, d in rows:
             counts[g][t] = n
             ndocs[g][t] = d
-        prior = Counter()
-        for c in counts.values():
-            prior.update(c)
         out: dict[str, list[tuple[str, float]]] = {}
-        for g, c in counts.items():
-            rest = prior.copy()
-            rest.subtract(c)
-            z = A.log_odds(c, +rest, prior)
-            keep = [(t, s) for t, s in z.items() if s >= Z_KEEP and ndocs[g][t] >= MIN_DOCS]
-            out[g] = sorted(keep, key=lambda x: -x[1])[:PER_GROUP]
+        rows_out: list[tuple[str, str, float, int]] = []
+        for an, ac, ad, bn, bc, bd in axes_groups(counts, ndocs).values():
+            if not ac or not bc:
+                continue
+            z = A.log_odds(ac, bc, ac + bc)
+            a_terms = [(t, v) for t, v in z.items() if v >= Z_KEEP and ad[t] >= MIN_DOCS]
+            b_terms = [(t, -v) for t, v in z.items() if v <= -Z_KEEP and bd[t] >= MIN_DOCS]
+            k = min(PER_GROUP, len(a_terms), len(b_terms))
+            out[an] = sorted(a_terms, key=lambda x: -x[1])[:k]
+            out[bn] = sorted(b_terms, key=lambda x: -x[1])[:k]
+            rows_out += [(an, t, round(v, 2), ad[t]) for t, v in out[an]]
+            rows_out += [(bn, t, round(v, 2), bd[t]) for t, v in out[bn]]
         with conn.transaction():
             conn.execute("delete from lexicon")
             with conn.cursor() as cur:
                 cur.executemany(
                     "insert into lexicon (grp, term, z, docs) values (%s, %s, %s, %s)",
-                    [(g, t, round(s, 2), ndocs[g][t]) for g, ts in out.items() for t, s in ts],
+                    rows_out,
                 )
     for g, ts in out.items():
-        print(f"{g}: {len(ts)} words, e.g. {', '.join(t for t, _ in ts[:20])}")
+        print(f"{g}: {len(ts)} words, e.g. {', '.join(t for t, _ in ts[:25])}")
     return out
+
+
+def reset() -> None:
+    """Forget all counts so every statement is counted again under the current grouping."""
+    from pipeline.db import connect
+
+    with connect() as conn:
+        conn.execute("delete from lexicon_counts")
+        conn.execute("update statements set counted_at = null")
+        conn.commit()
+    print("counts cleared; statements will be counted again")
 
 
 def load(conn) -> dict[str, set[str]]:
@@ -231,8 +270,7 @@ def place() -> str:
 
     cfg = Q.politics()
     first, second = cfg["party_axis"]
-    opposition = [p for p, s in cfg["parties"].items() if s["bloc"] == "opposition"]
-    axes = {"ideology": ([second], [first]), "power": (["정부"], opposition)}
+    axes = {"ideology": ([second], [first]), "power": (["정부"], ["야당"])}
     with connect() as conn:
         rows = conn.execute(
             "select sa.story_id, a.outlet_id, a.metrics->'lex' from story_articles sa "
@@ -293,7 +331,7 @@ def place() -> str:
 
 def main(argv: list[str] | None = None) -> int:
     ap = argparse.ArgumentParser()
-    ap.add_argument("action", choices=["count", "build", "place"])
+    ap.add_argument("action", choices=["count", "build", "place", "reset"])
     ap.add_argument("--limit", type=int, default=400)
     ap.add_argument("--minutes", type=float, default=60)
     args = ap.parse_args(argv)
@@ -301,6 +339,8 @@ def main(argv: list[str] | None = None) -> int:
         count(args.limit, args.minutes)
     elif args.action == "build":
         build()
+    elif args.action == "reset":
+        reset()
     else:
         text = place()
         if os.environ.get("GITHUB_STEP_SUMMARY"):
