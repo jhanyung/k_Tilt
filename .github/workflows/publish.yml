@@ -1,0 +1,50 @@
+name: publish
+
+# Render the latest edition into the static site and commit it; Cloudflare redeploys
+# on every push. Called by the edition workflow; can also be run by hand.
+on:
+  workflow_call:
+  workflow_dispatch:
+    inputs:
+      edition:
+        description: "Edition id (empty = latest published)"
+        type: string
+        default: ""
+      json_only:
+        description: "Export data only, do not render pages"
+        type: boolean
+        default: false
+
+permissions:
+  contents: write
+
+concurrency:
+  group: publish
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - run: pip install -e .
+      - run: >-
+          python -m pipeline.publish
+          ${{ inputs.edition && format('--edition {0}', inputs.edition) || '' }}
+          ${{ inputs.json_only && '--json-only' || '' }}
+      - name: Commit the site if it changed
+        run: |
+          git add site
+          if git diff --cached --quiet; then echo "no change"; exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git commit -m "Publish edition"
+          git pull --rebase origin main
+          git push

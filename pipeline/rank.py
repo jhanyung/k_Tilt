@@ -189,6 +189,7 @@ OFF_TOPIC = {
     "아이돌", "컴백", "드라마", "예능", "음원", "뮤직비디오", "팬미팅", "열애", "시청률",
     "로또", "운세", "우승", "선두", "라운드", "KLPGA", "KPGA", "LIV", "준우승", "결승",
     "축구", "아시안컵", "월드컵", "AFC", "FIFA", "손흥민", "이강인", "김민재", "야구", "MLB",
+    "체전", "전국체전", "선수단", "체육대회", "올림픽", "메달", "금메달",
 }  # fmt: skip
 
 
@@ -230,14 +231,46 @@ def embed(titles: list[str]) -> np.ndarray:
     return np.array(list(model.embed(titles, batch_size=128)), dtype=np.float32)
 
 
-def similarity(titles: list[str], emb: np.ndarray) -> np.ndarray:
+def features(titles: list[str], emb: np.ndarray):
+    """Normalised embeddings and character n-gram TF-IDF rows for all headlines."""
     from sklearn.feature_extraction.text import TfidfVectorizer
     from sklearn.preprocessing import normalize
 
-    e = normalize(emb)
     tf = TfidfVectorizer(analyzer="char_wb", ngram_range=(2, 3), min_df=2, sublinear_tf=True)
-    x = normalize(tf.fit_transform(titles))
+    return normalize(emb).astype(np.float32), normalize(tf.fit_transform(titles))
+
+
+def similarity_of(e: np.ndarray, x, rows=None) -> np.ndarray:
+    if rows is not None:
+        e, x = e[rows], x[rows]
     return (W_EMB * (e @ e.T) + (1 - W_EMB) * (x @ x.T).toarray()).astype(np.float32)
+
+
+def similarity(titles: list[str], emb: np.ndarray) -> np.ndarray:
+    e, x = features(titles, emb)
+    return similarity_of(e, x)
+
+
+def with_neighbours(
+    e: np.ndarray, x, outlets: list[str], threshold: float, min_outlets: int, block: int = 1024
+) -> np.ndarray:
+    """Indices of headlines with close matches (similarity >= threshold) from at least
+    `min_outlets` other outlets. A sub-event needs MIN_OUTLETS_SUB outlets, so a headline
+    without such matches cannot help build a story; dropping it first keeps clustering
+    fast on a full day of sitemaps (17,000+ headlines)."""
+    n = len(e)
+    codes = {o: i for i, o in enumerate(sorted(set(outlets)))}
+    out_id = np.array([codes[o] for o in outlets])
+    keep = np.zeros(n, dtype=bool)
+    xt = x.T.tocsc()
+    for a in range(0, n, block):
+        b = min(n, a + block)
+        s = W_EMB * (e[a:b] @ e.T) + (1 - W_EMB) * (x[a:b] @ xt).toarray()
+        close = s >= threshold
+        for r in range(b - a):
+            others = out_id[close[r]]
+            keep[a + r] = len(set(others.tolist()) - {out_id[a + r]}) >= min_outlets
+    return np.flatnonzero(keep)
 
 
 def agglomerate(dist: np.ndarray, threshold: float) -> list[list[int]]:
@@ -322,26 +355,41 @@ def build_stories(arts: list[Art], sim: np.ndarray, nouns: list[set[str]]) -> li
             cnt.update(nouns[i])
         return len(members), cnt
 
-    def same_event(a: Story, b: Story) -> bool:
-        (na, ca), (nb, cb) = shares(a), shares(b)
-        if na > nb:
-            (na, ca), (nb, cb) = (nb, cb), (na, ca)
+    def same_event(x: tuple[int, Counter[str]], y: tuple[int, Counter[str]]) -> bool:
+        (na, ca), (nb, cb) = (x, y) if x[0] <= y[0] else (y, x)
         core_small = {w for w, c in ca.items() if c >= CORE_SHARE * na} - GENERIC
         present = {w for w in core_small if cb.get(w, 0) >= PRESENT_SHARE * nb}
         return len(present) >= 2
 
-    merged = True
-    while merged:
-        merged = False
-        for a in range(len(stories)):
-            for b in range(a + 1, len(stories)):
-                if same_event(stories[a], stories[b]):
-                    stories[a].sub_events += stories[b].sub_events
-                    del stories[b]
-                    merged = True
-                    break
-            if merged:
-                break
+    def eligible(info: tuple[int, Counter[str]]) -> set[str]:
+        # Words in >=25% of a story's headlines: any merge needs two of them in common.
+        n_, c_ = info
+        return {w for w, c in c_.items() if c >= PRESENT_SHARE * n_} - GENERIC
+
+    # Same rule as before, but each story's counts are cached and only stories that
+    # share two eligible words are compared (all pairs, rescanned after every merge,
+    # took 20+ minutes on a full day of sitemaps).
+    infos = [shares(st) for st in stories]
+    while True:
+        index: dict[str, list[int]] = defaultdict(list)
+        for k, info in enumerate(infos):
+            for w in eligible(info):
+                index[w].append(k)
+        common: Counter[tuple[int, int]] = Counter()
+        for ks in index.values():
+            for i_ in range(len(ks)):
+                for j_ in range(i_ + 1, len(ks)):
+                    common[(ks[i_], ks[j_])] += 1
+        pair = next(
+            (p for p in sorted(common) if common[p] >= 2 and same_event(infos[p[0]], infos[p[1]])),
+            None,
+        )
+        if pair is None:
+            break
+        a_, b_ = pair
+        stories[a_].sub_events += stories[b_].sub_events
+        infos[a_] = shares(stories[a_])
+        del stories[b_], infos[b_]
 
     for st in stories:
         members = [i for g in st.sub_events for i in g]
@@ -376,8 +424,21 @@ def rank(arts: list[Art], top_n: int = TOP_N) -> tuple[list[Art], list[Story]]:
     if len(arts) < 10:
         return arts, []
     titles = [normalise(a.title) for a in arts]
-    sim = similarity(titles, embed(titles))
+    t0 = time.time()
+    e, x = features(titles, embed(titles))
+    t1 = time.time()
+    rows = with_neighbours(e, x, [a.outlet_id for a in arts], 1 - TH_SUB, MIN_OUTLETS_SUB - 1)
+    print(
+        f"{len(rows)} of {len(arts)} headlines have close matches at other outlets "
+        f"(embed {t1 - t0:.0f}s, filter {time.time() - t1:.0f}s)",
+        flush=True,
+    )
+    arts = [arts[i] for i in rows]
+    titles = [titles[i] for i in rows]
+    sim = similarity_of(e, x, rows)
+    t2 = time.time()
     stories = build_stories(arts, sim, nouns_of(titles))
+    print(f"clustering {time.time() - t2:.0f}s", flush=True)
     return arts, select(stories, top_n)
 
 
