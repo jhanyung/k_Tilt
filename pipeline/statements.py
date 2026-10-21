@@ -95,7 +95,8 @@ def page_url(src: dict, n: int) -> str:
     if n == 1:
         return src["list"]
     sep = "&" if "?" in src["list"] else "?"
-    return f"{src['list']}{sep}{src['page_param']}={n}"
+    value = (n - 1) * src["page_step"] if src.get("page_step") else n
+    return f"{src['list']}{sep}{src['page_param']}={value}"
 
 
 def collect(src: dict, pages: int = 1) -> tuple[list[Statement], str]:

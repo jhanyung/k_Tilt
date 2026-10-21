@@ -2,6 +2,8 @@
 # about the day's issues, in their own words. Titles, links and dates are stored; the
 # text is read in memory when a story needs it and then dropped.
 #
+# page_param / page_step: how list pages are addressed (page number, or an offset of
+#   page_step items per page).
 # body: class of the element that holds the statement's text on its own page.
 # side: government | party. A party's bloc (ruling/opposition) comes from politics.yaml,
 # so nothing here changes when power changes hands.
@@ -35,7 +37,8 @@ sources:
     side: party
     party: 더불어민주당
     list: https://theminjoo.kr/main/sub/news/list.php?brd=11
-    page_param: page
+    page_param: sno
+    page_step: 20  # the list pages by offset: sno=0, 20, 40, ...
     link: 'view\.php\?(?:sno=\d+&(?:amp;)?)?brd=11&(?:amp;)?post=\d+'
     body: board-view__contents
   - id: ppp

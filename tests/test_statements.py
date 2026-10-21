@@ -78,3 +78,15 @@ def test_story_scores_are_relative_within_a_story():
     z = lexicon.story_scores(arts, ["국민의힘"], ["더불어민주당"])
     assert z["o5"] > 0 > z["o0"]
     assert abs(sum(z.values())) < 1e-9
+
+
+def test_offset_pagination():
+    src = {
+        "list": "https://theminjoo.kr/main/sub/news/list.php?brd=11",
+        "page_param": "sno",
+        "page_step": 20,
+    }
+    assert statements.page_url(src, 1) == src["list"]
+    assert statements.page_url(src, 3).endswith("brd=11&sno=40")
+    ppp = {"list": "https://x/news/comment/BBSDD0001", "page_param": "page"}
+    assert statements.page_url(ppp, 2) == "https://x/news/comment/BBSDD0001?page=2"
