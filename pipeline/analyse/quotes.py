@@ -308,7 +308,13 @@ def parse_phrase(ws: list[Word]) -> tuple[str, str, list[str]]:
     """(name, title, organisation words) of a speaker phrase given as words."""
     texts = [HANJA_SURNAME.get(w.text, w.text) for w in ws]
     texts = [re.sub(r"\(.*?\)|（.*?）", "", t).strip("()") for t in texts]
-    keep = [i for i, t in enumerate(texts) if t and not LEADING_JUNK.match(t)]
+    # Drop date words, and outlet names left in front of a speaker by a byline
+    # ("[파이낸셜뉴스] 이재명 대통령은") unless the outlet itself is the speaker.
+    keep = [
+        i
+        for i, t in enumerate(texts)
+        if t and not LEADING_JUNK.match(t) and not (_is_outlet(t) and i < len(texts) - 1)
+    ]
     ws = [ws[i] for i in keep]
     texts = [texts[i] for i in keep]
     if not texts:

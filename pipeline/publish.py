@@ -14,7 +14,9 @@ Usage:
 from __future__ import annotations
 
 import argparse
+import html as htmllib
 import json
+import re
 import sys
 from collections import Counter, defaultdict
 from datetime import UTC, datetime, timedelta
@@ -46,6 +48,37 @@ def _speaker_rows(rows: list[tuple]) -> list[Q.Quote]:
         q.outlet, q.url = outlet, url  # type: ignore[attr-defined]
         out.append(q)
     return out
+
+
+def clean(title: str) -> str:
+    """Some feeds deliver titles with HTML entities still in them (&apos;, &quot;)."""
+    return htmllib.unescape(htmllib.unescape(title or "")).strip()
+
+
+NAME = re.compile(r"[가-힣]{2,4}")
+
+
+def resolve_from_headlines(qs: list[Q.Quote], titles: list[str]) -> None:
+    """Short forms still unresolved ("부 의원") take the full name the story's headlines
+    use, when exactly one name with that surname appears in at least two headlines."""
+    words: Counter = Counter()
+    for t in titles:
+        words.update(set(NAME.findall(t)))
+    for q in qs:
+        sp = q.speaker
+        if sp.name or not sp.initial:
+            continue
+        cands = [
+            (w, c)
+            for w, c in words.items()
+            if w[0] == sp.initial and 3 <= len(w) <= 3 and c >= 2 and not Q._orgish(w)
+        ]
+        cands.sort(key=lambda x: -x[1])
+        if cands and (len(cands) == 1 or cands[0][1] >= 2 * cands[1][1]):
+            sp.name = cands[0][0]
+            sp.text = " ".join(x for x in (sp.org, sp.name, sp.title) if x)
+            q.flags.append("name-from-headlines")
+    Q.harmonise(qs)
 
 
 def side_of(sp: Q.Speaker) -> str:
@@ -96,14 +129,14 @@ def export(conn, edition_id: int | None = None) -> dict:
         ).fetchall()
         seen: set[str] = set()
         coverage = []
-        for oid, title, url, when, _ in arts:
+        for oid, title, url, when, sub in arts:
             if oid in seen:
                 continue
             seen.add(oid)
             o = outlets.get(oid, {})
             coverage.append(
-                {"o": oid, "n": o.get("name", oid), "g": o.get("group", ""), "t": title,
-                 "u": url, "p": when.astimezone(UTC).isoformat(timespec="minutes")}
+                {"o": oid, "n": o.get("name", oid), "g": o.get("group", ""), "t": clean(title),
+                 "u": url, "p": when.astimezone(UTC).isoformat(timespec="minutes"), "s": sub}
             )  # fmt: skip
         qs = Q.harmonise(
             _speaker_rows(
@@ -124,15 +157,21 @@ def export(conn, edition_id: int | None = None) -> dict:
             if q.speaker.role != "미상":
                 side_outlets[side_of(q.speaker)].add(q.outlet)  # type: ignore[attr-defined]
         sides = {k: len(v) for k, v in side_outlets.items()}
+        resolve_from_headlines(qs, [c["t"] for c in coverage])
         by_speaker: dict[str, list[Q.Quote]] = defaultdict(list)
         for q in qs:
             if q.speaker.role != "미상":
-                key = q.speaker.name or q.speaker.text
+                key = q.speaker.name or q.speaker.text.replace(" ", "")
                 by_speaker[key].append(q)
         speakers = []
         ranked = sorted(by_speaker.values(), key=lambda g: -len({q.outlet for q in g}))  # type: ignore[attr-defined]
         for group in ranked[:TOP_SPEAKERS]:
-            sp = max((q.speaker for q in group), key=lambda s: len(s.text))
+            # The form most outlets used, preferring ones that carry a name.
+            forms = Counter(q.speaker.text for q in group if q.speaker.name) or Counter(
+                q.speaker.text for q in group
+            )
+            shown = forms.most_common(1)[0][0]
+            sp = next(q.speaker for q in group if q.speaker.text == shown)
             common = Counter(q.text for q in group).most_common(1)[0][0]
             first = next(q for q in group if q.text == common)
             speakers.append(
@@ -142,7 +181,7 @@ def export(conn, edition_id: int | None = None) -> dict:
                  "u": first.url}
             )  # fmt: skip
         statements = [
-            {"src": src, "n": src_names.get(src, src), "t": title, "u": url,
+            {"src": src, "n": src_names.get(src, src), "t": clean(title), "u": url,
              "d": d.isoformat() if d else None}
             for src, title, url, d in conn.execute(
                 "select st.source, st.title, st.url, st.published_on from story_statements ss "
@@ -152,12 +191,22 @@ def export(conn, edition_id: int | None = None) -> dict:
             ).fetchall()
         ]  # fmt: skip
         stories.append(
-            {"rank": rank, "headline": headline, "outlets": outlet_count,
+            {"rank": rank, "headline": clean(headline), "outlets": outlet_count,
              "angles": len({a[4] for a in arts}), "keywords": list(keywords or [])[:6],
              "coverage": coverage, "sides": sides,
              "quoting": len({q.outlet for q in qs}),  # type: ignore[attr-defined]
              "speakers": speakers, "statements": statements}
         )  # fmt: skip
+    more = [
+        {"rank": r, "headline": clean(h), "outlets": n, "u": u}
+        for r, h, n, u in conn.execute(
+            "select s.rank, s.headline, s.outlet_count, (select a.url from story_articles sa "
+            "join articles a on a.id = sa.article_id where sa.story_id = s.id "
+            "and a.title = s.headline limit 1) from stories s "
+            "where s.edition_id = %s and s.status = 'candidate' order by s.rank",
+            (eid,),
+        ).fetchall()
+    ]
     names = {o: v["name"] for o, v in outlets.items()}
     return {
         "edition": {
@@ -170,6 +219,7 @@ def export(conn, edition_id: int | None = None) -> dict:
             "generated": datetime.now(UTC).isoformat(timespec="minutes"),
         },
         "stories": stories,
+        "more": more,
     }  # fmt: skip
 
 
