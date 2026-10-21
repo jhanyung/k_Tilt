@@ -53,10 +53,7 @@ def contrast(story: dict, n: int = 3) -> list[dict]:
         return len(g & lead) / max(1, len(g | lead))
 
     pool = [c for c in cov if c["t"] != story["headline"] and near(c) >= 0.12]
-    if len(pool) < n:
-        pool = sorted((c for c in cov if c["t"] != story["headline"]), key=near, reverse=True)[
-            : n * 2
-        ]
+    # Fewer than n near headlines: show fewer rather than a stray.
     while pool and len(chosen) < n:
         used_groups = {c["g"] for c in chosen}
         refs = [lead] + [_grams(c["t"]) for c in chosen]
