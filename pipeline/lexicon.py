@@ -190,6 +190,12 @@ def build() -> dict[str, list[tuple[str, float]]]:
             if not ac or not bc:
                 continue
             z = A.log_odds(ac, bc, ac + bc)
+            print(
+                f"{an} vs {bn}: words {sum(ac.values()):,} / {sum(bc.values()):,}, "
+                f"distinct {len(ac):,} / {len(bc):,}, "
+                f"z>=+{Z_KEEP} {sum(1 for v in z.values() if v >= Z_KEEP)}, "
+                f"z<=-{Z_KEEP} {sum(1 for v in z.values() if v <= -Z_KEEP)}"
+            )
             a_terms = [(t, v) for t, v in z.items() if v >= Z_KEEP and ad[t] >= MIN_DOCS]
             b_terms = [(t, -v) for t, v in z.items() if v <= -Z_KEEP and bd[t] >= MIN_DOCS]
             k = min(PER_GROUP, len(a_terms), len(b_terms))
