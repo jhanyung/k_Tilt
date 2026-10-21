@@ -68,3 +68,11 @@ jobs:
       - name: Quotes from the published stories' articles
         if: ${{ !inputs.dry_run }}
         run: python -m pipeline.analyse
+
+  publish:
+    needs: edition
+    if: ${{ !inputs.dry_run }}
+    permissions:
+      contents: write
+    uses: ./.github/workflows/publish.yml
+    secrets: inherit

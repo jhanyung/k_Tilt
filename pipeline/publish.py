@@ -39,7 +39,9 @@ def _outlets() -> dict[str, dict]:
 def _speaker_rows(rows: list[tuple]) -> list[Q.Quote]:
     out = []
     for speaker, name, title, org, role, party, bloc, quote, flags, outlet, url in rows:
-        sp = Q.Speaker(speaker, name, title, org, role, party, bloc)
+        first = speaker.split(" ")[0] if speaker else ""
+        initial = first if not name and len(first) == 1 and first in Q.SURNAMES else ""
+        sp = Q.Speaker(speaker, name, title, org, role, party, bloc, initial)
         q = Q.Quote(quote, sp, flags=list(flags or []))
         q.outlet, q.url = outlet, url  # type: ignore[attr-defined]
         out.append(q)
@@ -115,19 +117,27 @@ def export(conn, edition_id: int | None = None) -> dict:
                 ).fetchall()
             )
         )
-        sides = Counter(side_of(q.speaker) for q in qs if q.speaker.role != "미상")
+        # Balance = how many outlets quoted each side at least once, not how many sentences:
+        # one statement repeated three times in sixty articles is still one voice.
+        side_outlets: dict[str, set[str]] = defaultdict(set)
+        for q in qs:
+            if q.speaker.role != "미상":
+                side_outlets[side_of(q.speaker)].add(q.outlet)  # type: ignore[attr-defined]
+        sides = {k: len(v) for k, v in side_outlets.items()}
         by_speaker: dict[str, list[Q.Quote]] = defaultdict(list)
         for q in qs:
             if q.speaker.role != "미상":
                 key = q.speaker.name or q.speaker.text
                 by_speaker[key].append(q)
         speakers = []
-        for _, group in sorted(by_speaker.items(), key=lambda kv: -len(kv[1]))[:TOP_SPEAKERS]:
+        ranked = sorted(by_speaker.values(), key=lambda g: -len({q.outlet for q in g}))  # type: ignore[attr-defined]
+        for group in ranked[:TOP_SPEAKERS]:
             sp = max((q.speaker for q in group), key=lambda s: len(s.text))
             common = Counter(q.text for q in group).most_common(1)[0][0]
             first = next(q for q in group if q.text == common)
             speakers.append(
-                {"s": sp.text, "r": sp.role, "p": sp.party, "side": side_of(sp), "c": len(group),
+                {"s": sp.text, "r": sp.role, "p": sp.party, "side": side_of(sp),
+                 "c": len({q.outlet for q in group}),  # type: ignore[attr-defined]
                  "q": common, "o": outlets.get(first.outlet, {}).get("name", first.outlet),
                  "u": first.url}
             )  # fmt: skip
@@ -144,7 +154,8 @@ def export(conn, edition_id: int | None = None) -> dict:
         stories.append(
             {"rank": rank, "headline": headline, "outlets": outlet_count,
              "angles": len({a[4] for a in arts}), "keywords": list(keywords or [])[:6],
-             "coverage": coverage, "sides": dict(sides), "quotes": len(qs),
+             "coverage": coverage, "sides": sides,
+             "quoting": len({q.outlet for q in qs}),  # type: ignore[attr-defined]
              "speakers": speakers, "statements": statements}
         )  # fmt: skip
     names = {o: v["name"] for o, v in outlets.items()}

@@ -1,10 +1,17 @@
 {
-  // Static site served by Cloudflare Workers (static assets only, no Worker script yet).
-  // "name" must match the Worker name shown in the Cloudflare dashboard.
+  // Static site plus a small Worker (worker/index.js) whose timer starts the pipeline's
+  // GitHub jobs on time. "name" must match the Worker name in the Cloudflare dashboard.
   "name": "k-tilt",
+  "main": "worker/index.js",
   "compatibility_date": "2026-10-01",
   "assets": {
     "directory": "./site",
+    "binding": "ASSETS",
     "not_found_handling": "404-page"
-  }
+  },
+  "triggers": {
+    // Every 10 minutes (UTC); worker/index.js decides which jobs are due.
+    "crons": ["*/10 * * * *"]
+  },
+  "observability": { "enabled": true }
 }
