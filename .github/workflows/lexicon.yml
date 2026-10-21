@@ -16,9 +16,13 @@ on:
         type: string
         default: "400"
       reset:
-        description: "Clear all counts and count every statement again"
+        description: "Clear counts and count again"
         type: boolean
         default: false
+      reset_source:
+        description: "With reset: only this source (e.g. minjoo); empty = all"
+        type: string
+        default: ""
 
 permissions:
   contents: read
@@ -40,7 +44,7 @@ jobs:
           cache: pip
       - run: pip install -e ".[analyse]"
       - if: ${{ inputs.reset }}
-        run: python -m pipeline.lexicon reset
+        run: python -m pipeline.lexicon reset ${{ inputs.reset_source && format('--source {0}', inputs.reset_source) || '' }}
       - run: python -m pipeline.statements --pages ${{ inputs.pages || '2' }}
         continue-on-error: true
       - run: python -m pipeline.lexicon count --limit ${{ inputs.limit || '400' }} --minutes 60

@@ -100,6 +100,7 @@ def count(limit: int, minutes: float = 60) -> int:
     state = {"sums": defaultdict(Counter), "docs": defaultdict(Counter), "done": []}
     total = Counter()
     misses: Counter = Counter()  # (host, reason) -> statements skipped
+    seen_len: dict[str, list[int]] = defaultdict(list)  # source -> text lengths
     guard = threading.Lock()
 
     def save() -> None:
@@ -129,7 +130,15 @@ def count(limit: int, minutes: float = 60) -> int:
                     time.sleep(5)
                     continue
                 src = srcs[source]
-                text = A.statement_text(decode_html(r.content), src["body"])
+                page = decode_html(r.content)
+                text = A.statement_text(page, src["body"])
+                seen_len[source].append(len(text))
+                if len(text) < 50 and len(seen_len[source]) <= 2:
+                    print(
+                        f"  sample without text from {source}: {r.url} {len(page)} bytes "
+                        f"{page[:300]!r}",
+                        flush=True,
+                    )
                 if len(text) < 50:
                     misses[(host, "no text found")] += 1
                 words = A.words(f"{title}\n{text}")
@@ -148,6 +157,12 @@ def count(limit: int, minutes: float = 60) -> int:
     print(f"counted {total['n']} of {len(rows)} statements waiting")
     for (host, why), n in misses.most_common():
         print(f"  {host}: {n} {why}")
+    for source, ls in seen_len.items():
+        ls.sort()
+        print(
+            f"  {source}: {len(ls)} read, median text {ls[len(ls) // 2]} chars, "
+            f"{sum(1 for v in ls if v < 50)} without text"
+        )
     return total["n"]
 
 
@@ -215,15 +230,20 @@ def build() -> dict[str, list[tuple[str, float]]]:
     return out
 
 
-def reset() -> None:
-    """Forget all counts so every statement is counted again under the current grouping."""
+def reset(source: str = "") -> None:
+    """Forget counts so statements are counted again: all, or one source's group."""
     from pipeline.db import connect
 
     with connect() as conn:
-        conn.execute("delete from lexicon_counts")
-        conn.execute("update statements set counted_at = null")
+        if source:
+            src = next(s for s in sources() if s["id"] == source)
+            conn.execute("delete from lexicon_counts where grp = %s", (group_of(src),))
+            conn.execute("update statements set counted_at = null where source = %s", (source,))
+        else:
+            conn.execute("delete from lexicon_counts")
+            conn.execute("update statements set counted_at = null")
         conn.commit()
-    print("counts cleared; statements will be counted again")
+    print(f"counts cleared ({source or 'all'}); those statements will be counted again")
 
 
 def load(conn) -> dict[str, set[str]]:
@@ -340,13 +360,14 @@ def main(argv: list[str] | None = None) -> int:
     ap.add_argument("action", choices=["count", "build", "place", "reset"])
     ap.add_argument("--limit", type=int, default=400)
     ap.add_argument("--minutes", type=float, default=60)
+    ap.add_argument("--source", default="", help="reset: only this source")
     args = ap.parse_args(argv)
     if args.action == "count":
         count(args.limit, args.minutes)
     elif args.action == "build":
         build()
     elif args.action == "reset":
-        reset()
+        reset(args.source)
     else:
         text = place()
         if os.environ.get("GITHUB_STEP_SUMMARY"):
