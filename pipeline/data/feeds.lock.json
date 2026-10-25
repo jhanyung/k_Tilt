@@ -240,8 +240,8 @@
       "home": "https://www.gukjenews.com",
       "feeds": [
         {
-          "url": "https://www.gukjenews.com/rss/allArticle.xml",
-          "kind": "rss"
+          "url": "https://www.gukjenews.com/sitemap.xml",
+          "kind": "sitemap"
         },
         {
           "url": "https://www.gukjenews.com/rss/S1N1.xml",
@@ -348,8 +348,8 @@
       "home": "https://ilyo.co.kr",
       "feeds": [
         {
-          "url": "https://www.ilyo.co.kr/rss/category",
-          "kind": "rss"
+          "url": "https://www.ilyo.co.kr/xml/latest/",
+          "kind": "sitemap"
         }
       ]
     },
@@ -484,8 +484,7 @@
           "url": "https://www.joongang.co.kr/sitemap/latest-articles",
           "kind": "sitemap"
         }
-      ],
-      "via": "relay"
+      ]
     },
     "joongboo": {
       "name": "중부일보",
@@ -644,8 +643,7 @@
           "url": "https://www.kookje.co.kr/",
           "kind": "page"
         }
-      ],
-      "via": "relay"
+      ]
     },
     "ksilbo": {
       "name": "경상일보",
@@ -701,7 +699,7 @@
       "home": "https://www.kyongbuk.co.kr",
       "feeds": [
         {
-          "url": "https://cdn.kyongbuk.co.kr/rss/gns_S1N2.xml",
+          "url": "https://cdn.kyongbuk.co.kr/rss/gns_S1N3.xml",
           "kind": "rss"
         },
         {
@@ -859,6 +857,10 @@
         {
           "url": "https://cdn.monthly.chosun.com/rss/gn_rss_allArticle.xml",
           "kind": "rss"
+        },
+        {
+          "url": "https://monthly.chosun.com/rss/S1N1.xml",
+          "kind": "rss"
         }
       ]
     },
@@ -868,8 +870,8 @@
       "home": "https://www.mt.co.kr",
       "feeds": [
         {
-          "url": "https://www.mt.co.kr/sitemap/latest.xml",
-          "kind": "sitemap"
+          "url": "https://rss.mt.co.kr/mt_news.xml",
+          "kind": "rss"
         }
       ]
     },
@@ -1509,5 +1511,5 @@
   "blocked": [
     "breaknews"
   ],
-  "generated_at": "2026-10-18T20:53:36+00:00"
+  "generated_at": "2026-10-25T21:03:30+00:00"
 }
